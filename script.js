@@ -37,7 +37,8 @@ document.querySelectorAll("[data-goal]").forEach((link) => {
 document.querySelectorAll("details").forEach((item) => {
   item.addEventListener("toggle", () => {
     if (!item.open) return;
-    document.querySelectorAll("details[open]").forEach((other) => {
+    const group = item.closest(".faq-list, .module-list") || document;
+    group.querySelectorAll("details[open]").forEach((other) => {
       if (other !== item) other.open = false;
     });
   });
