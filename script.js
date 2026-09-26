@@ -22,6 +22,8 @@ document.querySelectorAll("[data-link]").forEach((link) => {
   const key = link.dataset.link;
   const url = LINKS[key] || `${TELEGRAM}?text=${encodeURIComponent(FALLBACK_TEXT[key] || "")}`;
   link.href = url;
+  // Пока нет ссылки на оплату, кнопка честно говорит, что ведёт в Telegram
+  if (!LINKS[key] && link.dataset.fallbackLabel) link.textContent = link.dataset.fallbackLabel;
   link.target = "_blank";
   link.rel = "noopener noreferrer";
 });
