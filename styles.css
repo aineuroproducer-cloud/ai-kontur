@@ -149,6 +149,9 @@ em { color: var(--petrol); font-family: "Literata", serif; font-weight: 400; }
 .module-list summary:hover h3 { color: var(--petrol); }
 .module-number { color: var(--lav); font-family: "Literata", serif; font-size: 2rem; font-style: italic; line-height: 1; }
 .module-list .module-label { margin-bottom: 6px; }
+.module-teaser { display: block; margin-top: 6px; color: var(--ink-faint); font-size: 14px; line-height: 1.45; }
+.module-list details[open] .module-teaser { display: none; }
+.module-body strong { color: var(--ink); }
 .module-list h3 { margin: 0; font-size: clamp(1.25rem, 2vw, 1.6rem); }
 .module-body { display: grid; grid-template-columns: 1fr 230px; gap: 24px; padding: 0 0 30px 92px; }
 .module-body > p { max-width: 680px; margin: 0; color: var(--ink-soft); }
