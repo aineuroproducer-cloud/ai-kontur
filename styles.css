@@ -333,7 +333,9 @@ a:focus-visible, button:focus-visible, summary:focus-visible { outline: 3px soli
   .button { width: 100%; }
   .hero-facts { flex-direction: column; gap: 12px; }
   .contour-card { padding: 22px 18px; border-radius: 22px; }
-  .route-strip { justify-content: flex-start; }
+  .route-strip { flex-wrap: wrap; justify-content: center; row-gap: 6px; overflow: visible; }
+  .included-grid strong { margin-bottom: 12px; }
+  .included-grid article { min-height: auto; }
   .section { padding: 78px 0; }
   .split-heading { gap: 28px; margin-bottom: 42px; }
   .problem-grid, .result-grid, .examples-grid, .fit-grid, .included-grid, .reviews-grid, .ba-grid { grid-template-columns: 1fr; }
