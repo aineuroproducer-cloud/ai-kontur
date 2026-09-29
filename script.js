@@ -2,8 +2,8 @@
 // Пока адрес пустой, кнопка ведёт в Telegram к Светлане (или к блоку контактов).
 const LINKS = {
   diagnostics: "",   // бот с Аудитором и Аналитиком (BotHelp, GPTs или другой)
-  pay_self: "",      // оплата тарифа «Самостоятельный», 9 900 ₽ (ЮKassa / GetCourse / BotHelp)
-  pay_feedback: "",  // оплата тарифа «С личной встречей», 14 900 ₽
+  pay_self: "https://t.me/neiroproducer_bot?start=c1790701602145-ds",      // тариф «Самостоятельный», 9 900 ₽ — диплинк BotHelp
+  pay_feedback: "https://t.me/neiroproducer_bot?start=c1790703715446-ds",  // тариф «С личной встречей», 14 900 ₽ — диплинк BotHelp
   consultation: "https://forms.gle/NLoVNi8C1op6Gs5W8",  // Google Форма — запись на консультацию для тарифа «Индивидуальное внедрение»
 };
 
