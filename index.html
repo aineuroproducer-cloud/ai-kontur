@@ -12,8 +12,19 @@
 <!-- Если подключите свой домен, замените адрес в двух строках ниже -->
 <meta property="og:image" content="https://ai-kontur-eight.vercel.app/assets/svetlana-portrait.jpg">
 <meta property="og:url" content="https://ai-kontur-eight.vercel.app/">
-<!-- Яндекс.Метрика: вставьте сюда код счётчика из кабинета metrika.yandex.ru.
-     Цели для кнопок уже размечены атрибутом data-goal — см. script.js. -->
+<!-- Yandex.Metrika counter -->
+<script type="text/javascript">
+    (function(m,e,t,r,i,k,a){
+        m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+        m[i].l=1*new Date();
+        for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+    })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=113178943', 'ym');
+
+    ym(113178943, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/113178943" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<!-- /Yandex.Metrika counter -->
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2355c9a7'/%3E%3Ctext x='16' y='22' font-family='monospace' font-size='18' font-weight='700' text-anchor='middle' fill='%2320231f'%3EК%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
@@ -403,5 +414,6 @@
     <a href="#top">Наверх ↑</a>
   </footer>
   <script src="script.js"></script>
+  <script src="cookie.js"></script>
 </body>
 </html>
