@@ -45,3 +45,25 @@ document.querySelectorAll("details").forEach((item) => {
     });
   });
 });
+
+// Карусель примеров: кнопки листают на одну карточку
+const track = document.querySelector(".case-track");
+if (track) {
+  const btns = document.querySelectorAll(".carousel-btn");
+  const step = () => {
+    const card = track.querySelector(".case-card");
+    return card ? card.getBoundingClientRect().width + 18 : 300;
+  };
+  const update = () => {
+    const max = track.scrollWidth - track.clientWidth - 2;
+    btns.forEach((b) => {
+      b.disabled = b.dataset.dir === "-1" ? track.scrollLeft <= 2 : track.scrollLeft >= max;
+    });
+  };
+  btns.forEach((b) => b.addEventListener("click", () => {
+    track.scrollBy({ left: step() * Number(b.dataset.dir), behavior: "smooth" });
+  }));
+  track.addEventListener("scroll", update, { passive: true });
+  window.addEventListener("resize", update);
+  update();
+}

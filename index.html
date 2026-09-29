@@ -119,47 +119,100 @@
       </div>
     </section>
 
-    <section class="section shell examples" id="examples">
-      <div class="section-heading split-heading">
-        <div>
-          <p class="section-kicker">Примеры</p>
-          <h2>Что получается на&nbsp;выходе</h2>
+    <section class="section examples" id="examples">
+      <div class="shell">
+        <div class="section-heading split-heading">
+          <div>
+            <p class="section-kicker">Примеры</p>
+            <h2>Что получается на&nbsp;выходе</h2>
+          </div>
+          <p>Не ответ в&nbsp;чате, а&nbsp;рабочий документ, который можно проверить и&nbsp;отдать руководителю или клиенту. Все примеры&nbsp;— из&nbsp;моей практики, данные обезличены.</p>
         </div>
-        <p>Не ответ в&nbsp;чате, а&nbsp;рабочий документ, который можно открыть, проверить и&nbsp;отдать руководителю или клиенту. Оба примера&nbsp;— из&nbsp;моей практики, данные обезличены.</p>
+        <p class="carousel-hint">Листайте вбок&nbsp;→</p>
+        <div class="carousel-nav">
+          <button class="carousel-btn" type="button" data-dir="-1" aria-label="Предыдущий пример">←</button>
+          <button class="carousel-btn" type="button" data-dir="1" aria-label="Следующий пример">→</button>
+        </div>
       </div>
-      <div class="case-grid">
+      <div class="case-track" tabindex="0" aria-label="Примеры работ, листайте вбок">
         <article class="case-card">
-          <a class="case-shot" href="examples/club.html" target="_blank" rel="noopener" data-goal="example_club"><img src="assets/example-club.jpg" alt="Первый экран отчёта: анализ двух клубов по подписке за три года" width="1920" height="1140" loading="lazy"></a>
+          <a class="case-shot shot-img shot-left" href="examples/club.html" target="_blank" rel="noopener" data-goal="example_club"><img src="assets/example-club.jpg" alt="График численности двух клубов за три года" width="906" height="506" loading="lazy"></a>
           <div class="case-body">
             <p class="case-label">Аналитика продаж</p>
             <h3>Почему клубы по&nbsp;подписке перестали расти</h3>
             <dl class="case-io">
-              <div><dt>На входе</dt><dd>восемь выгрузок GetCourse за&nbsp;три года: пробники, подписки, ушедшие участники</dd></div>
-              <div><dt>На выходе</dt><dd>отчёт с&nbsp;графиками, найденная «дыра» в&nbsp;продукте и&nbsp;семь решений для руководителя</dd></div>
+              <div><dt>На входе</dt><dd>восемь выгрузок GetCourse за&nbsp;три года</dd></div>
+              <div><dt>На выходе</dt><dd>отчёт с&nbsp;графиками и&nbsp;семь решений для руководителя</dd></div>
             </dl>
             <a class="text-link" href="examples/club.html" target="_blank" rel="noopener" data-goal="example_club">Открыть пример&nbsp;→</a>
           </div>
         </article>
         <article class="case-card">
-          <a class="case-shot" href="examples/traffic.html" target="_blank" rel="noopener" data-goal="example_traffic"><img src="assets/example-traffic.jpg" alt="Первый экран отчёта: сколько заказов принёс внешний трафик" width="1920" height="1140" loading="lazy"></a>
+          <a class="case-shot shot-img shot-left" href="examples/traffic.html" target="_blank" rel="noopener" data-goal="example_traffic"><img src="assets/example-traffic.jpg" alt="Столбчатая диаграмма заказов с рекламного трафика по месяцам" width="1120" height="542" loading="lazy"></a>
           <div class="case-body">
             <p class="case-label">Маркетинг</p>
             <h3>Окупается&nbsp;ли рекламный трафик</h3>
             <dl class="case-io">
-              <div><dt>На входе</dt><dd>выгрузка заказов и&nbsp;пользователей с&nbsp;UTM-метками за&nbsp;девять месяцев</dd></div>
-              <div><dt>На выходе</dt><dd>отчёт по&nbsp;источникам и&nbsp;вывод: проблема не&nbsp;в&nbsp;рекламе, а&nbsp;в&nbsp;шаге между бесплатным входом и&nbsp;покупкой</dd></div>
+              <div><dt>На входе</dt><dd>выгрузка заказов с&nbsp;UTM-метками за&nbsp;девять месяцев</dd></div>
+              <div><dt>На выходе</dt><dd>разбор по&nbsp;источникам: где теряются покупатели</dd></div>
             </dl>
             <a class="text-link" href="examples/traffic.html" target="_blank" rel="noopener" data-goal="example_traffic">Открыть пример&nbsp;→</a>
           </div>
         </article>
-      </div>
-      <div class="case-more">
-        <p class="case-more-title">С&nbsp;какими задачами ещё приходили</p>
-        <ul>
-          <li><strong>5000 замечаний ОТК</strong>&nbsp;— классификация, повторяющиеся причины, таблица для решения</li>
-          <li><strong>Презентация для руководителей</strong>&nbsp;— из&nbsp;внутренних документов, по&nbsp;заданной структуре</li>
-          <li><strong>База знаний</strong>&nbsp;— помощник отвечает по&nbsp;регламентам и&nbsp;показывает источник</li>
-        </ul>
+        <article class="case-card">
+          <div class="case-shot shot-otk" aria-hidden="true">
+            <p class="mock-title">Причины замечаний ОТК</p>
+            <div class="mock-bar"><span>Маркировка</span><i style="width:88%"></i></div>
+            <div class="mock-bar"><span>Пайка</span><i style="width:62%"></i></div>
+            <div class="mock-bar"><span>Размеры</span><i style="width:47%"></i></div>
+            <div class="mock-bar"><span>Документы</span><i style="width:30%"></i></div>
+            <div class="mock-bar"><span>Прочее</span><i style="width:21%"></i></div>
+          </div>
+          <div class="case-body">
+            <p class="case-label">Производство</p>
+            <h3>5000 замечаний ОТК&nbsp;— в&nbsp;карту причин</h3>
+            <dl class="case-io">
+              <div><dt>На входе</dt><dd>таблица замечаний в&nbsp;свободной форме</dd></div>
+              <div><dt>На выходе</dt><dd>категории, повторяющиеся причины и&nbsp;таблица для решения специалиста</dd></div>
+            </dl>
+            <p class="case-tag">Схема, данные клиента не&nbsp;показываем</p>
+          </div>
+        </article>
+        <article class="case-card">
+          <div class="case-shot shot-deck" aria-hidden="true">
+            <div class="mock-slide back"></div>
+            <div class="mock-slide mid"></div>
+            <div class="mock-slide front">
+              <p class="mock-title">Итоги квартала</p>
+              <div class="mock-cols"><div><i></i><i></i><i class="short"></i></div><div class="mock-chart"><b style="height:40%"></b><b style="height:65%"></b><b style="height:85%"></b></div></div>
+            </div>
+          </div>
+          <div class="case-body">
+            <p class="case-label">Презентации</p>
+            <h3>Из&nbsp;внутренних документов&nbsp;— презентация для руководителей</h3>
+            <dl class="case-io">
+              <div><dt>На входе</dt><dd>отчёты, заметки и&nbsp;образец нужной структуры</dd></div>
+              <div><dt>На выходе</dt><dd>слайды в&nbsp;заданной логике, выводы проверяются по&nbsp;источникам</dd></div>
+            </dl>
+            <p class="case-tag">Схема, данные клиента не&nbsp;показываем</p>
+          </div>
+        </article>
+        <article class="case-card">
+          <div class="case-shot shot-kb" aria-hidden="true">
+            <p class="mock-q">Какой срок согласования договора с&nbsp;поставщиком?</p>
+            <p class="mock-a">10&nbsp;рабочих дней с&nbsp;момента регистрации. Если сумма больше лимита&nbsp;— дополнительно виза финансового директора.</p>
+            <p class="mock-src">Источник: Регламент закупок, п.&nbsp;4.2</p>
+          </div>
+          <div class="case-body">
+            <p class="case-label">База знаний</p>
+            <h3>Помощник отвечает по&nbsp;регламентам и&nbsp;показывает источник</h3>
+            <dl class="case-io">
+              <div><dt>На входе</dt><dd>регламенты, инструкции и&nbsp;рабочие документы</dd></div>
+              <div><dt>На выходе</dt><dd>помощник, который отвечает по&nbsp;внутренним правилам со&nbsp;ссылкой на&nbsp;пункт</dd></div>
+            </dl>
+            <p class="case-tag">Схема, данные клиента не&nbsp;показываем</p>
+          </div>
+        </article>
       </div>
     </section>
 
