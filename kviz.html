@@ -158,7 +158,7 @@ html,body{min-height:100vh;background:var(--bg);color:var(--text);font-family:'I
 <div id="screen-main" class="screen">
   <div class="qheader">
     <div class="brand">НЕЙРОПРОДЮСЕР</div>
-    <div class="prog"><span class="cur" id="qnum">00</span> / 13</div>
+    <div class="prog"><span class="cur" id="qnum">0</span> / 13</div>
   </div>
   <div class="qwrap" id="qcontent"></div>
 </div>
@@ -171,11 +171,11 @@ html,body{min-height:100vh;background:var(--bg);color:var(--text);font-family:'I
   </div>
   <div class="res-wrap" id="res-content"></div>
   <div class="sub-section">
-    <div class="sub-title">Хочешь выйти из своего паттерна?</div>
-    <p class="sub-text">Каждую неделю в рассылке Нейропродюсера — конкретные инструменты, кейсы и шаги под твой тип работы с ИИ. Без воды.</p>
+    <div class="sub-title">Паттерн — это «как». Следующий шаг — «что»</div>
+    <p class="sub-text">Какие из твоих задач стоит отдать ИИ, а какие оставить себе? Два ИИ-помощника — Аудитор и Аналитик — за 20 минут разберут твою работу и соберут карту задач. Бесплатно, помощников пришлю в Telegram.</p>
     <div class="sub-btns">
-      <a href="https://t.me/neiro_producer" target="_blank" class="btn">Подписаться в Telegram &nbsp;→</a>
-      <a href="https://t.me/neiroproducer_bot" target="_blank" class="btn-outline">Матрица Нейропродюсера &nbsp;→</a>
+      <a href="https://t.me/neiroproducer_bot" id="cta-bot" target="_blank" rel="noopener" class="btn">Получить Аудитора и Аналитика &nbsp;→</a>
+      <a href="https://t.me/neiro_producer" target="_blank" rel="noopener" class="btn-outline">Канал Нейропродюсера &nbsp;→</a>
     </div>
   </div>
 </div>
@@ -188,11 +188,15 @@ html,body{min-height:100vh;background:var(--bg);color:var(--text);font-family:'I
 </div>
 
 <script>
+// Ссылка на сценарий в боте (диплинк BotHelp на шаг с Аудитором и Аналитиком).
+// Пока пусто — кнопка ведёт просто в бот.
+const BOT_LINK = "";
+
 // ══════════════════════════════════════════
 // DATA
 // ══════════════════════════════════════════
 const INTRO = {
-  label: "ТОЧКА ОТСЧЁТА · ВОПРОС 0",
+  label: "ТОЧКА ОТСЧЁТА",
   q: "Как часто ты используешь ИИ в работе?",
   intro: true,
   answers: [
@@ -205,7 +209,7 @@ const INTRO = {
 
 const QS = [
   {
-    id:1, label:"01 · ТЕКУЩАЯ ТОЧКА",
+    id:1, label:"ТЕКУЩАЯ ТОЧКА",
     q:"Что больше всего бесит тебя в работе с ИИ?",
     answers:[
       {l:"А",t:"Трачу много времени на запрос — а результат всё равно переделываю",arc:"П",a:"Тратить время на запрос и всё равно переделывать — это не проблема инструмента. Это признак высокой планки, которая пока работает против тебя, а не на тебя."},
@@ -216,7 +220,7 @@ const QS = [
     ]
   },
   {
-    id:2, label:"02 · ТЕКУЩАЯ ТОЧКА",
+    id:2, label:"ТЕКУЩАЯ ТОЧКА",
     q:"Какая мысль чаще всего останавливает тебя перед тем, как применить ИИ?",
     answers:[
       {l:"А",t:"«Надо сначала сформулировать запрос точнее — иначе получу мусор»",arc:"П",a:"«Надо точнее» звучит разумно и профессионально. Именно поэтому так сложно заметить, что это ловушка, а не осторожность."},
@@ -227,7 +231,7 @@ const QS = [
     ]
   },
   {
-    id:3, label:"03 · ТЕКУЩАЯ ТОЧКА",
+    id:3, label:"ТЕКУЩАЯ ТОЧКА",
     q:"Что ты считаешь своим главным недостатком в работе с ИИ?",
     answers:[
       {l:"А",t:"Трачу слишком много времени на «правильный» запрос",arc:"П",a:"Слишком долго собираешься — ты уже это знаешь. Интереснее другое: что именно защищает этот ритуал и зачем он психике."},
@@ -238,7 +242,7 @@ const QS = [
     ]
   },
   {
-    id:4, label:"04 · ПОВЕДЕНИЕ В ПРОЦЕССЕ",
+    id:4, label:"ПОВЕДЕНИЕ В ПРОЦЕССЕ",
     q:"Что ты обычно делаешь, когда результат ИИ не совсем то, что нужно?",
     answers:[
       {l:"А",t:"Переформулирую запрос снова и снова — пока не станет ближе к идеалу",arc:"П",a:"Каждый раз надеешься, что вот этот запрос — правильный. Это марафон без финиша: идеал не фиксирован, он всегда немного дальше."},
@@ -249,7 +253,7 @@ const QS = [
     ]
   },
   {
-    id:5, label:"05 · ПОВЕДЕНИЕ В ПРОЦЕССЕ",
+    id:5, label:"ПОВЕДЕНИЕ В ПРОЦЕССЕ",
     q:"Что чаще всего зависает у тебя в «незавершённом»?",
     answers:[
       {l:"А",t:"Задачи, которые начал(а) через ИИ, но «надо ещё чуть доработать»",arc:"П",a:"Тот самый «последний штрих», который откладывается неделями. Ты уже знаешь эту историю — она происходит снова и снова."},
@@ -260,7 +264,7 @@ const QS = [
     ]
   },
   {
-    id:6, label:"06 · ПОВЕДЕНИЕ В ПРОЦЕССЕ",
+    id:6, label:"ПОВЕДЕНИЕ В ПРОЦЕССЕ",
     q:"По какой причине откладываешь задачу, которую мог(ла) бы закрыть через ИИ?",
     answers:[
       {l:"А",t:"«Нужно сначала правильно сформулировать — иначе получу плохой результат»",arc:"П",a:"Звучит профессионально и разумно. Именно поэтому с этим так сложно спорить — изнутри и снаружи."},
@@ -271,7 +275,7 @@ const QS = [
     ]
   },
   {
-    id:7, label:"07 · ОТНОШЕНИЕ К РЕЗУЛЬТАТУ",
+    id:7, label:"ОТНОШЕНИЕ К РЕЗУЛЬТАТУ",
     q:"Что для тебя самое некомфортное в работе с ИИ?",
     answers:[
       {l:"А",t:"Что результат почти никогда не бывает точным с первого раза",arc:"П",a:"Хочется контроля — понятно. Первый черновик всегда несовершенен. Именно это убеждение и держит на месте."},
@@ -281,7 +285,7 @@ const QS = [
     ]
   },
   {
-    id:8, label:"08 · ОТНОШЕНИЕ К РЕЗУЛЬТАТУ",
+    id:8, label:"ОТНОШЕНИЕ К РЕЗУЛЬТАТУ",
     q:"Что страшнее?",
     answers:[
       {l:"А",t:"Потратить час на идеальный запрос — и всё равно получить не то",arc:"П",a:"Это не страх провала. Это страх бесполезно потраченного усилия. Тонкое, но важное различие."},
@@ -293,7 +297,7 @@ const QS = [
     ]
   },
   {
-    id:9, label:"09 · СПОСОБ САМООБМАНА",
+    id:9, label:"СПОСОБ САМООБМАНА",
     q:"Какая фраза звучит в голове, когда снова откладываешь?",
     answers:[
       {l:"А",t:"«Надо ещё чуть-чуть доточить запрос»",arc:"П",a:"Эта фраза всегда звучит разумно. Всегда. В этом и состоит её сила — и её ловушка."},
@@ -304,7 +308,7 @@ const QS = [
     ]
   },
   {
-    id:10, label:"10 · СПОСОБ САМООБМАНА",
+    id:10, label:"СПОСОБ САМООБМАНА",
     q:"Какая причина всегда выглядит «разумной», но на деле тормозит?",
     answers:[
       {l:"А",t:"«Сначала нужно составить нормальный шаблон — потом буду применять»",arc:"П",a:"Шаблон появится — через практику. А практика начнётся, когда ты перестанешь ждать готового шаблона."},
@@ -315,7 +319,7 @@ const QS = [
     ]
   },
   {
-    id:11, label:"11 · РЕАКЦИЯ НА НЕУДАЧУ",
+    id:11, label:"РЕАКЦИЯ НА НЕУДАЧУ",
     q:"Что ты чувствуешь, когда результат ИИ разочаровал?",
     answers:[
       {l:"А",t:"Раздражение на себя: плохо сформулировал(а) задачу",arc:"П",a:"Ты берёшь ответственность — и немного слишком много. Перфекционизм в чистом виде: виноват запрос, а не процесс."},
@@ -327,7 +331,7 @@ const QS = [
     ]
   },
   {
-    id:12, label:"12 · ТВОЯ СИЛА",
+    id:12, label:"ТВОЯ СИЛА",
     q:"Что тебе в работе с ИИ даётся легче, чем другим?",
     answers:[
       {l:"А",t:"Точно формулировать задачу и замечать, где результат неточный",arc:"П",a:"Реальная сила. Пока она направлена на перфекционирование запроса — она работает против результата. Если развернуть — станет конкурентным преимуществом."},
@@ -339,7 +343,7 @@ const QS = [
     ]
   },
   {
-    id:13, label:"13 · ГОТОВНОСТЬ К ПЕРЕСТРОЙКЕ",
+    id:13, label:"ГОТОВНОСТЬ К ПЕРЕСТРОЙКЕ",
     q:"Что тебе было бы проще поменять первым?",
     answers:[
       {l:"А",t:"Перестать добиваться идеального результата с первой попытки",arc:"П",a:"Это самый точный диагноз — и самый сложный первый шаг. Именно поэтому его стоит сделать."},
@@ -426,6 +430,10 @@ const ARCHETYPES = {
 // ══════════════════════════════════════════
 let step = 0;      // 0=intro, 1–13=questions
 let scores = {П:0,К:0,Ск:0,Т:0,И:0,Н:0};
+let lastPick = {};   // номер вопроса, где паттерн выбран последний раз — для ничьей
+let order = [];      // порядок показа ответов в текущем вопросе
+const LETTERS = ['А','Б','В','Г','Д','Е'];
+function shuffled(n){const a=[...Array(n).keys()];for(let i=n-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 let pendingNext = null;
 let waitingForIntermediate = false;
 
@@ -475,12 +483,14 @@ function renderStep(){
 }
 
 function renderQuestion(data, idx){
-  document.getElementById('qnum').textContent = String(idx).padStart(2,'0');
+  document.getElementById('qnum').textContent = String(idx);
   const container = document.getElementById('qcontent');
-  const answers = data.answers.map((a,i)=>`
-    <div class="aitem" id="ans-${i}" onclick="selectAnswer(${i})">
-      <div class="aletter">${a.l}</div>
-      <div class="atext">${a.t}</div>
+  // Вопрос о частоте — шкала, его не перемешиваем. Остальные — в случайном порядке
+  order = data.intro ? [...data.answers.keys()] : shuffled(data.answers.length);
+  const answers = order.map((ai,pos)=>`
+    <div class="aitem" id="ans-${pos}" onclick="selectAnswer(${pos})">
+      <div class="aletter">${LETTERS[pos]}</div>
+      <div class="atext">${data.answers[ai].t}</div>
     </div>
   `).join('');
   container.innerHTML = `
@@ -494,15 +504,16 @@ function renderQuestion(data, idx){
 }
 
 function selectAnswer(idx){
+  if(document.querySelector('.aitem.sel')) return;
   const data = step===0 ? INTRO : QS[step-1];
-  const ans = data.answers[idx];
+  const ans = data.answers[order[idx]];
   // lock all items
   document.querySelectorAll('.aitem').forEach((el,i)=>{
     if(i===idx) el.classList.add('sel');
     else el.classList.add('locked');
   });
   // score
-  if(ans.arc && scores[ans.arc]!==undefined) scores[ans.arc]++;
+  if(ans.arc && scores[ans.arc]!==undefined){ scores[ans.arc]++; lastPick[ans.arc]=step; }
   // determine next
   pendingNext = ()=>{
     step++;
@@ -558,21 +569,20 @@ function afterIntermediate(){
 // ══════════════════════════════════════════
 function showResult(){
   // determine winner
-  let winner = 'П';
-  let max = -1;
-  for(const [k,v] of Object.entries(scores)){
-    if(v>max){max=v;winner=k;}
-  }
+  // Побеждает паттерн с наибольшим числом ответов; при ничьей — тот, что выбран позже
+  const ranked = Object.keys(scores).sort((a,b)=> (scores[b]-scores[a]) || ((lastPick[b]||0)-(lastPick[a]||0)));
+  const winner = ranked[0];
+  const total = Object.values(scores).reduce((x,y)=>x+y,0) || 1;
   const arch = ARCHETYPES[winner];
   const now = new Date();
   const dateStr = now.toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'});
   document.getElementById('res-date').textContent = `ДИАГНОСТИКА · ${dateStr}`;
 
-  const scalesHTML = arch.scales.map(s=>`
+  const scalesHTML = ranked.filter(k=>scores[k]>0).map(k=>`
     <div class="sc-row">
-      <div class="sc-name">${s.n}</div>
-      <div class="sc-bg"><div class="sc-fill" data-val="${s.v}"></div></div>
-      <div class="sc-val">${s.v}%</div>
+      <div class="sc-name">${ARCHETYPES[k].name}</div>
+      <div class="sc-bg"><div class="sc-fill" data-val="${Math.round(scores[k]/total*100)}"></div></div>
+      <div class="sc-val">${scores[k]}&nbsp;из&nbsp;${total}</div>
     </div>
   `).join('');
 
@@ -595,7 +605,7 @@ function showResult(){
       </div>
     </div>
     <div class="scales">
-      <div class="sc-label">ШКАЛЫ, ПО КОТОРЫМ ТЫ ВЫШЕЛ В МАКСИМУМ</div>
+      <div class="sc-label">КАК РАСПРЕДЕЛИЛИСЬ ТВОИ ОТВЕТЫ</div>
       ${scalesHTML}
     </div>
     <div class="exit-box">
@@ -619,6 +629,7 @@ function showResult(){
 // ══════════════════════════════════════════
 // Set start screen visible immediately
 document.addEventListener('DOMContentLoaded',()=>{
+  if(BOT_LINK) document.getElementById('cta-bot').href = BOT_LINK;
   const start = document.getElementById('screen-start');
   start.style.display='flex';
   start.style.opacity='0';
