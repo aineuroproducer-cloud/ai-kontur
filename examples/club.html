@@ -1,0 +1,632 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}</style></head><body><div style="max-width:1320px;margin:0 auto;padding:14px clamp(16px,3vw,32px) 0"><p style="margin:0;padding:10px 14px;border-radius:6px;background:#FFF4E5;color:#6B4A1E;font:15px/1.45 -apple-system,Segoe UI,sans-serif">Пример из практики. Названия, метки и суммы изменены по просьбе клиента, пропорции и выводы сохранены.</p></div>
+<title>Пример: анализ клубов по подписке</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Unbounded:wght@500;600&display=swap">
+<style>
+  :root{
+    --ground:#F0F1F3;
+    --surface:#FFFFFF;
+    --surface-2:#E5E7EA;
+    --ink:#14171D;
+    --ink-2:#2A313A;
+    --ink-3:#454E59;
+    --line:#D8DCE1;
+    --line-strong:#98A1AC;
+    --accent:#2C4B6E;
+    --accent-soft:#DCE5EE;
+    --good:#356B4E;
+    --good-soft:#DAEADF;
+    --warn:#8E4722;
+    --warn-soft:#F1E1D5;
+    --shadow:0 1px 2px rgba(26,29,36,.05), 0 10px 26px -20px rgba(26,29,36,.5);
+  }
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){
+      --ground:#0F1216;
+      --surface:#171B21;
+      --surface-2:#1F242B;
+      --ink:#F0F3F6;
+      --ink-2:#D4DCE5;
+      --ink-3:#AFB9C5;
+      --line:#272E36;
+      --line-strong:#46515C;
+      --accent:#7BA6CE;
+      --accent-soft:#182937;
+      --good:#6FAC8B;
+      --good-soft:#16281E;
+      --warn:#D08A5A;
+      --warn-soft:#2E1E14;
+      --shadow:0 1px 2px rgba(0,0,0,.5), 0 10px 26px -20px rgba(0,0,0,.9);
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#0F1216;
+    --surface:#171B21;
+    --surface-2:#1F242B;
+    --ink:#F0F3F6;
+    --ink-2:#D4DCE5;
+    --ink-3:#AFB9C5;
+    --line:#272E36;
+    --line-strong:#46515C;
+    --accent:#7BA6CE;
+    --accent-soft:#182937;
+    --good:#6FAC8B;
+    --good-soft:#16281E;
+    --warn:#D08A5A;
+    --warn-soft:#2E1E14;
+    --shadow:0 1px 2px rgba(0,0,0,.5), 0 10px 26px -20px rgba(0,0,0,.9);
+  }
+
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+  body{
+    margin:0;background:var(--ground);color:var(--ink);
+    font-family:"Golos Text",-apple-system,"Segoe UI",Roboto,sans-serif;
+    font-size:20px;line-height:1.65;-webkit-font-smoothing:antialiased;
+  }
+  .shell{max-width:1320px;margin:0 auto;padding:0 clamp(16px,3vw,32px)}
+  .layout{display:grid;grid-template-columns:225px minmax(0,1fr);gap:clamp(24px,4vw,54px);align-items:start}
+  @media (max-width:920px){.layout{grid-template-columns:minmax(0,1fr)}nav.toc{display:none}}
+
+  nav.toc{position:sticky;top:0;padding:40px 0;display:flex;flex-direction:column;gap:2px}
+  nav.toc .navlabel{font-family:"JetBrains Mono",monospace;font-size:13px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3);margin-bottom:10px}
+  nav.toc a{display:flex;gap:9px;text-decoration:none;color:var(--ink-2);font-size:16px;padding:5px 8px;border-left:2px solid transparent;border-radius:0 3px 3px 0;line-height:1.35}
+  nav.toc a span{font-family:"JetBrains Mono",monospace;color:var(--ink-3);font-size:13.5px;padding-top:2px}
+  nav.toc a:hover{background:var(--surface);color:var(--ink)}
+  nav.toc a.on{border-left-color:var(--accent);color:var(--ink);font-weight:600}
+  nav.toc a.on span{color:var(--accent)}
+  nav.toc a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+  main{padding:40px 140px;display:flex;flex-direction:column;gap:clamp(38px,5vw,60px);min-width:0}
+
+  .eyebrow{font-family:"JetBrains Mono",monospace;font-size:13.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
+  h1{font-family:Unbounded,"Golos Text",sans-serif;font-weight:600;font-size:clamp(30px,4.2vw,46px);line-height:1.12;letter-spacing:-.02em;margin:.32em 0 0;text-wrap:balance}
+  h2{font-weight:700;font-size:clamp(23px,2.9vw,29px);line-height:1.22;letter-spacing:-.015em;margin:0;text-wrap:balance}
+  h3{font-size:20px;font-weight:600;margin:0}
+  p{margin:0;max-width:66ch}
+  .lede{font-size:22.5px;color:var(--ink-2);line-height:1.5;max-width:62ch}
+
+  section{display:flex;flex-direction:column;gap:19px;scroll-margin-top:24px}
+  .shead{display:flex;flex-direction:column;gap:7px;border-top:1px solid var(--line-strong);padding-top:15px}
+  .shead .n{font-family:"JetBrains Mono",monospace;font-size:15px;color:var(--accent);font-weight:500;letter-spacing:.09em}
+
+  .meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}
+  .tag{font-size:16px;padding:6px 14px;border-radius:100px;background:var(--surface);border:1px solid var(--line);color:var(--ink-2)}
+
+  .stats{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}
+  .stat{background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:18px;display:flex;flex-direction:column;gap:5px;box-shadow:var(--shadow)}
+  .stat.good{border-color:var(--good);background:var(--good-soft)}
+  .stat.warn{border-color:var(--warn);background:var(--warn-soft)}
+  .stat .k{font-family:"JetBrains Mono",monospace;font-size:13.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--ink-3)}
+  .stat.good .k{color:var(--good)} .stat.warn .k{color:var(--warn)}
+  .stat .v{font-family:Unbounded,sans-serif;font-weight:600;font-size:41px;line-height:1.08;letter-spacing:-.02em}
+  .stat .n{font-size:17px;color:var(--ink-2);line-height:1.4}
+
+  .tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:4px;background:var(--surface);box-shadow:var(--shadow)}
+  table{border-collapse:collapse;width:100%;font-size:18px}
+  th,td{padding:13px 18px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+  thead th{font-family:"JetBrains Mono",monospace;font-weight:500;font-size:13.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);border-bottom:1px solid var(--line-strong);white-space:nowrap}
+  tbody tr:last-child td{border-bottom:none}
+  td.num,th.num{text-align:right;font-family:"JetBrains Mono",monospace;font-variant-numeric:tabular-nums;font-size:17px;white-space:nowrap}
+  tr.total td{border-top:1px solid var(--line-strong);font-weight:600;background:var(--surface-2)}
+  tr.hi td{background:var(--accent-soft)}
+  td.w{font-weight:600}
+  .dim{color:var(--ink-3)}
+  .up{color:var(--good);font-weight:600} .down{color:var(--warn);font-weight:600}
+
+  .pill{display:inline-block;font-family:"JetBrains Mono",monospace;font-size:13.5px;font-weight:500;padding:2px 7px;border-radius:3px;white-space:nowrap}
+  .pill.g{background:var(--good-soft);color:var(--good);border:1px solid var(--good)}
+  .pill.w{background:var(--warn-soft);color:var(--warn);border:1px solid var(--warn)}
+
+  /* club chart */
+  .chart{background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:22px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:18px}
+  .chartscroll{overflow-x:auto}
+  .chartscroll svg{display:block;width:100%;min-width:560px;height:auto}
+  .legend{display:flex;gap:22px;font-size:17px;color:var(--ink-2);flex-wrap:wrap}
+  .legend i{display:inline-block;width:13px;height:13px;border-radius:2px;margin-right:8px;vertical-align:baseline}
+
+  .grid2{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(275px,1fr))}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:18px 20px;display:flex;flex-direction:column;gap:8px}
+  .card p{font-size:18px;color:var(--ink-2)}
+  .card strong{color:var(--ink)}
+  .card ul{margin:0;padding-left:1.1em;display:flex;flex-direction:column;gap:8px;font-size:18px;color:var(--ink-2)}
+
+  .callout{border-left:3px solid var(--accent);background:var(--surface);padding:16px 20px;display:flex;flex-direction:column;gap:8px;border-radius:0 4px 4px 0;box-shadow:var(--shadow)}
+  .callout.w{border-left-color:var(--warn)} .callout.w h3{color:var(--warn)}
+  .callout.g{border-left-color:var(--good)} .callout.g h3{color:var(--good)}
+  .callout p{font-size:18.5px;color:var(--ink-2)}
+
+  .decisions{display:flex;flex-direction:column;gap:10px}
+  .dec{background:var(--surface);border:1px solid var(--line);border-radius:4px;display:grid;grid-template-columns:42px minmax(0,1fr);overflow:hidden}
+  .dec .idx{background:var(--accent-soft);color:var(--accent);font-family:"JetBrains Mono",monospace;font-weight:500;font-size:16px;display:flex;align-items:center;justify-content:center;border-right:1px solid var(--line)}
+  .dec .body{padding:15px 18px;display:flex;flex-direction:column;gap:6px}
+  .dec .q{font-weight:600;font-size:20px}
+  .dec p{font-size:18px;color:var(--ink-2)}
+
+  footer{border-top:1px solid var(--line);padding-top:18px;color:var(--ink-3);font-size:16.5px;max-width:82ch}
+  @media print{nav.toc{display:none}.layout{grid-template-columns:1fr}body{background:#fff}section{break-inside:avoid}}
+</style>
+
+<div class="shell">
+<div class="layout">
+
+  <nav class="toc" aria-label="Разделы">
+    <div class="navlabel">Разделы</div>
+    <a href="#s1"><span>1</span>Итог</a>
+    <a href="#s2"><span>2</span>Два разных клуба</a>
+    <a href="#s3"><span>3</span>Деньги по годам</a>
+    <a href="#s4"><span>4</span>Годовая подписка</a>
+    <a href="#s5"><span>5</span>Первые две недели</a>
+    <a href="#s6"><span>6</span>Кто платит долго</a>
+    <a href="#s7"><span>7</span>Отток</a>
+    <a href="#s8"><span>8</span>Откуда приходят</a>
+    <a href="#s9"><span>9</span>Что решаем</a>
+  </nav>
+
+  <main>
+
+    <header>
+      <div class="eyebrow">Онлайн-школа · клубные подписки · данные 2023–2026</div>
+      <h1>Два клуба по подписке: анализ за три года</h1>
+      <p class="lede" style="margin-top:16px">Что происходит с клубными подписками по факту оплат. Разбор восьми выгрузок GetCourse: пробные покупки, помесячная подписка, годовая и полугодовая, подарочные доступы, ушедшие участники и помесячное удержание за три года.</p>
+      <div class="meta">
+        <span class="tag">Данные на конец августа 2026</span>
+        <span class="tag">2 662 заказа</span>
+        <span class="tag">Выручка клиентов 2025: 2 148 240 ₽</span>
+      </div>
+    </header>
+
+    <section id="s1">
+      <div class="shead"><div class="n">1</div><h2>Итог одной страницей</h2></div>
+      <div class="stats">
+        <div class="stat good"><span class="k">Продление годовой</span><span class="v">74%</span><span class="n">когорта 2024 → 2025, последний закрытый цикл. Текущая идёт в том же темпе</span></div>
+        <div class="stat"><span class="k">Выручка клиентов 2025</span><span class="v">2,15 млн</span><span class="n">188 клиентов, без доступов для сотрудников</span></div>
+        <div class="stat warn"><span class="k">2026 к тому же дню</span><span class="v">−33%</span><span class="n">873 210 ₽ против 1 308 830 ₽ год назад</span></div>
+        <div class="stat warn"><span class="k">Пробников куплено в 2026</span><span class="v">8</span><span class="n">человек за восемь месяцев против 80 в 2025</span></div>
+      </div>
+      <div class="grid2">
+        <div class="card">
+          <h3>Оба продукта здоровы, но по-разному</h3>
+          <p>Годовая подписка — <strong>74% продлений</strong> и 62% выручки. Помесячная даёт прочное ядро: все 16 клиентов, отплативших весь 2025 год, платят и в 2026. Ломать не надо ни то, ни другое.</p>
+        </div>
+        <div class="card">
+          <h3>Ломаются первые две недели</h3>
+          <p>Решение остаться человек принимает внутри пробного периода: медиана от пробника до первой оплаты — <strong>14 дней</strong>. Кого не подхватили за это время, тот не возвращается.</p>
+        </div>
+        <div class="card">
+          <h3>Клубы ведут себя по-разному</h3>
+          <p>Клуб А держит численность три года подряд. «Клуб Б» потерял 39% в первый же год работы и с тех пор не растёт.</p>
+        </div>
+        <div class="card">
+          <h3>Дело не в цене</h3>
+          <p>Конверсия пробника падала весь 2025 при неизменной цене 199 ₽: с 35% в декабре до 0% в апреле. Менялось только внимание к новичку.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="s2">
+      <div class="shead"><div class="n">2</div><h2>Два клуба — две разные истории</h2></div>
+      <p>Численность участников на конец каждого месяца, январь 2023 — декабрь 2025. Крупные цифры — итог года. Данные из отчётов по удержанию.</p>
+      <div class="chart">
+        <div class="chartscroll">
+          <svg viewBox="0 1 245 070" role="img" aria-label="Численность участников двух клубов по месяцам с января 2023 по декабрь 2025 с итогами на конец каждого года" preserveAspectRatio="xMidYMid meet">
+            <g stroke="var(--line)" stroke-width="1">
+              <line x1="54" y1="324" x2="860" y2="324"></line>
+              <line x1="54" y1="265.5" x2="860" y2="265.5"></line>
+              <line x1="54" y1="207.1" x2="860" y2="207.1"></line>
+              <line x1="54" y1="148.6" x2="860" y2="148.6"></line>
+              <line x1="54" y1="90.2" x2="860" y2="90.2"></line>
+              <line x1="54" y1="31.7" x2="860" y2="31.7"></line>
+            </g>
+            <g fill="var(--ink-3)" font-size="17" font-family="JetBrains Mono, monospace" text-anchor="end">
+              <text x="44" y="330">0</text><text x="44" y="271.5">25</text><text x="44" y="213.1">50</text>
+              <text x="44" y="154.6">75</text><text x="44" y="96.2">100</text><text x="44" y="37.7">125</text>
+            </g>
+            <g stroke="var(--line-strong)" stroke-width="1" stroke-dasharray="4 4">
+              <line x1="322.7" y1="20" x2="322.7" y2="324"></line>
+              <line x1="591.3" y1="20" x2="591.3" y2="324"></line>
+            </g>
+            <g fill="var(--ink-3)" font-size="18" font-family="JetBrains Mono, monospace" text-anchor="middle">
+              <text x="188" y="352">2023</text><text x="457" y="352">2024</text><text x="726" y="352">2025</text>
+            </g>
+            <polyline fill="none" stroke="var(--accent)" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"
+              points="54.0,85.5 76.4,57.4 98.8,66.8 121.2,69.1 143.6,66.8 165.9,69.1 188.3,78.5 210.7,73.8 233.1,71.4 255.5,73.8 277.9,69.1 300.3,73.8 322.7,73.8 345.1,57.4 367.4,50.4 389.8,66.8 412.2,69.1 434.6,57.4 457.0,57.4 479.4,71.4 501.8,62.1 524.2,52.7 546.6,83.1 568.9,62.1 591.3,66.8 613.7,57.4 636.1,64.4 658.5,64.4 680.9,71.4 703.3,36.4 725.7,38.7 748.1,38.7 770.4,38.7 792.8,43.4 815.2,43.4 837.6,41.0 860.0,64.4"></polyline>
+            <polyline fill="none" stroke="var(--warn)" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"
+              points="54.0,300.6 76.4,55.1 98.8,71.4 121.2,94.8 143.6,127.6 165.9,136.9 188.3,151.0 210.7,151.0 233.1,148.6 255.5,158.0 277.9,160.3 300.3,160.3 322.7,160.3 345.1,141.6 367.4,146.3 389.8,160.3 412.2,162.6 434.6,172.0 457.0,167.3 479.4,169.7 501.8,162.6 524.2,151.0 546.6,165.0 568.9,155.6 591.3,155.6 613.7,148.6 636.1,108.9 658.5,125.2 680.9,143.9 703.3,136.9 725.7,136.9 748.1,136.9 770.4,132.2 792.8,143.9 815.2,158.0 837.6,155.6 860.0,172.0"></polyline>
+
+            <g fill="var(--accent)">
+              <circle cx="322.7" cy="73.8" r="6"></circle><circle cx="591.3" cy="66.8" r="6"></circle><circle cx="860.0" cy="64.4" r="6"></circle>
+            </g>
+            <g fill="var(--warn)">
+              <circle cx="322.7" cy="160.3" r="6"></circle><circle cx="591.3" cy="155.6" r="6"></circle><circle cx="860.0" cy="172.0" r="6"></circle>
+            </g>
+            <g font-size="21" font-weight="700" font-family="Golos Text, sans-serif" text-anchor="middle" fill="var(--accent)">
+              <text x="322.7" y="60">107</text><text x="591.3" y="53">110</text>
+            </g>
+            <g font-size="21" font-weight="700" font-family="Golos Text, sans-serif" text-anchor="middle" fill="var(--warn)">
+              <text x="322.7" y="183">70</text><text x="591.3" y="178">72</text>
+            </g>
+            <g text-anchor="start" font-family="Golos Text, sans-serif">
+              <text x="872" y="58" font-size="26" font-weight="700" fill="var(--accent)">111</text>
+              <text x="872" y="78" font-size="15" fill="var(--ink-3)">Клуб А</text>
+              <text x="872" y="166" font-size="26" font-weight="700" fill="var(--warn)">65</text>
+              <text x="872" y="186" font-size="15" fill="var(--ink-3)">Клуб Б</text>
+            </g>
+            <circle cx="76.4" cy="55.1" r="6" fill="var(--warn)"></circle>
+            <text x="90" y="48" fill="var(--warn)" font-size="19" font-weight="600" font-family="Golos Text, sans-serif">115 — январь 2023</text>
+          </svg>
+        </div>
+        <div class="legend">
+          <span><i style="background:var(--accent)"></i>Клуб А — держится на 105–120 три года подряд</span>
+          <span><i style="background:var(--warn)"></i>Клуб Б — обвал в первый же год, дальше плато</span>
+        </div>
+      </div>
+      <div class="callout">
+        <h3>«После ковида все ушли» — цифрами не подтверждается</h3>
+        <p>Клуб А три года держит одну и ту же численность: 107, 110, 111 человек. Клуб не разваливается, он просто не растёт.</p>
+        <p>А «Клуб Б» стартовал в январе 2023 со 105 новыми участниками, в феврале было 115 — и к декабрю того же года осталось 70. <strong>Минус 39% за одиннадцать месяцев, задолго до всякой усталости от годового трека.</strong> Дальше клуб стабильно держится на уровне 65–80 и не растёт тоже.</p>
+      </div>
+    </section>
+
+    <section id="s3">
+      <div class="shead"><div class="n">3</div><h2>Деньги: 2026 идёт на треть ниже</h2></div>
+      <p>Суммарно по обоим клубам — помесячные подписки, годовые, полугодовые и пробники. <strong>Считаются только клиенты.</strong> Доступы для сотрудников школы по 200 ₽ вынесены отдельной строкой: это внутренний тариф, а не продажи.</p>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Год</th><th class="num">Клиентов</th><th class="num">Выручка за год</th><th class="num">Выручка к 31 августа</th><th class="num">Сотрудников</th><th class="num">Их доступы</th></tr></thead>
+          <tbody>
+            <tr><td class="w">2024</td><td class="num">142</td><td class="num">1 937 030 ₽</td><td class="num">992 590 ₽</td><td class="num dim">35</td><td class="num dim">230 340 ₽</td></tr>
+            <tr><td class="w">2025</td><td class="num">188</td><td class="num">2 148 240 ₽</td><td class="num">1 308 830 ₽</td><td class="num dim">35</td><td class="num dim">220 050 ₽</td></tr>
+            <tr class="hi"><td class="w">2026</td><td class="num">68</td><td class="num dim">год не закончен</td><td class="num">873 210 ₽</td><td class="num dim">30</td><td class="num dim">132 190 ₽</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p><strong>Сравнение на одну и ту же дату:</strong> 2026 год идёт на <span class="down">67%</span> от выручки прошлого года — падение примерно на треть. К 2024 году падение мягче, <span class="down">−12%</span>: 2025-й был необычно сильным за счёт февральско-майских пробников.</p>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Среднемесячно платящих клиентов, январь–август</th><th class="num">2024</th><th class="num">2025</th><th class="num">2026</th></tr></thead>
+          <tbody>
+            <tr><td class="w">Человек в месяц</td><td class="num">30</td><td class="num">40</td><td class="num">28</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="dim" style="font-size:17px">Число уникальных клиентов за период сравнивать нельзя: в 2025 через клубы прошло много пробников, и уникальных получается больше при той же ежемесячной аудитории. Среднемесячный счёт честнее.</p>
+
+      <h3 style="margin-top:6px">Помесячная подписка отдельно по клубам</h3>
+      <p class="dim" style="font-size:17px">Только те, кто платит помесячно. Купившие год вперёд — в разделе 4, это почти не пересекающиеся группы.</p>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Клуб и год</th><th class="num">Плательщиков</th><th class="num">Заказов</th><th class="num">Выручка</th><th class="num">Платежей на человека</th><th class="num">На человека</th></tr></thead>
+          <tbody>
+            <tr><td class="w">Клуб А 2024</td><td class="num">61</td><td class="num">287</td><td class="num">698 450 ₽</td><td class="num">4,7</td><td class="num">11 450 ₽</td></tr>
+            <tr><td class="w">Клуб А 2025</td><td class="num">69</td><td class="num">285</td><td class="num">644 770 ₽</td><td class="num">4,1</td><td class="num">9 340 ₽</td></tr>
+            <tr><td class="w">Клуб А 2026 <span class="dim">(8 мес)</span></td><td class="num">48</td><td class="num">192</td><td class="num">431 950 ₽</td><td class="num">4,0</td><td class="num">9 000 ₽</td></tr>
+            <tr><td class="w">Клуб Б 2024</td><td class="num">23</td><td class="num">69</td><td class="num">229 940 ₽</td><td class="num">3,0</td><td class="num">10 000 ₽</td></tr>
+            <tr><td class="w">Клуб Б 2025</td><td class="num">17</td><td class="num">74</td><td class="num">191 070 ₽</td><td class="num">4,4</td><td class="num">11 240 ₽</td></tr>
+            <tr class="hi"><td class="w">Клуб Б 2026 <span class="dim">(8 мес)</span></td><td class="num">6</td><td class="num">23</td><td class="num">43 370 ₽</td><td class="num">3,8</td><td class="num">7 230 ₽</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Помесячная «Клуб Б» сжимается быстрее всего: <strong>23 → 17 → 6 клиентов</strong>. При этом те, кто остался, платят исправно — средний чек на человека даже вырос. Уходят не старые, просто не приходят новые.</p>
+      <p class="dim" style="font-size:17px">Раньше в этих строках стояли цифры вдвое больше — это были клиенты вместе с сотрудниками школы. Сотрудники дают почти половину всех заказов при 10% выручки, поэтому любая статистика «по количеству заказов» с ними разъезжается.</p>
+    </section>
+
+    <section id="s4">
+      <div class="shead"><div class="n">4</div><h2>Годовая подписка: 28% клиентов дают 62% выручки</h2></div>
+      <div class="callout">
+        <h3>Этот раздел — только про оплату года вперёд</h3>
+        <p>В клубах два разных продукта, и это разные люди. <strong>Годовая и полугодовая</strong> — разовый платёж 19 940–26 670 ₽ за 12 месяцев доступа. <strong>Помесячная</strong> — 1 890–3 680 ₽ каждый месяц. Пересечение крошечное: в 2025 году всего два человека платили и так и так. Доступы для сотрудников школы в годовой подписке не встречаются вообще.</p>
+        <div class="tablewrap" style="margin-top:4px">
+          <table>
+            <thead><tr><th>2025 год</th><th class="num">Плательщиков</th><th class="num">Выручка</th><th class="num">Доля выручки</th><th>Где в документе</th></tr></thead>
+            <tbody>
+              <tr class="hi"><td class="w">Годовая и полугодовая</td><td class="num">52</td><td class="num">1 323 330 ₽</td><td class="num">62%</td><td>этот раздел</td></tr>
+              <tr><td class="w">Помесячная подписка</td><td class="num">80</td><td class="num">806 720 ₽</td><td class="num">38%</td><td>разделы 03 и 6</td></tr>
+              <tr><td class="w">Пробники по 199 ₽</td><td class="num">71</td><td class="num">18 200 ₽</td><td class="num">1%</td><td>раздел 5</td></tr>
+              <tr class="total"><td>Всего уникальных клиентов</td><td class="num">188</td><td class="num">2 148 240 ₽</td><td class="num">100%</td><td class="dim">люди пересекаются</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="dim" style="font-size:17px">Ниже когорты считаны по выгрузке и дают 46 и 51 человека — на одного меньше, чем в таблице выше, из-за заказов, созданных в декабре предыдущего года.</p>
+      </div>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Год</th><th class="num">Покупателей</th><th class="num">Выручка</th><th class="num">Средний чек</th><th class="num">Новых покупателей</th></tr></thead>
+          <tbody>
+            <tr><td class="w">2024</td><td class="num">46</td><td class="num">1 117 730 ₽</td><td class="num">23 290 ₽</td><td class="num dim">—</td></tr>
+            <tr><td class="w">2025</td><td class="num">51</td><td class="num">1 274 320 ₽</td><td class="num">24 510 ₽</td><td class="num">17</td></tr>
+            <tr class="hi"><td class="w">2026 <span class="dim">(8 мес)</span></td><td class="num">20</td><td class="num">433 200 ₽</td><td class="num">21 660 ₽</td><td class="num">3</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout g">
+        <h3>Продление 74% — и текущая когорта идёт не хуже</h3>
+        <p>Из 46 покупателей 2024 года 34 купили годовую снова в 2025. Восемь человек покупают третий год подряд. Это последний <strong>полностью закрытый</strong> цикл продления — свежее цифры не существует, потому что когорта 2025 закроется только в декабре 2026.</p>
+      </div>
+
+      <h3 style="margin-top:6px">Как продлеваются когорты: накопительно по месяцам</h3>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Месяц</th><th class="num">Когорта 2024 → 2025 <span class="dim">(46 чел)</span></th><th class="num">Когорта 2025 → 2026 <span class="dim">(51 чел)</span></th></tr></thead>
+          <tbody>
+            <tr><td class="w">январь</td><td class="num">2%</td><td class="num">6%</td></tr>
+            <tr><td class="w">февраль</td><td class="num">9%</td><td class="num">10%</td></tr>
+            <tr><td class="w">март</td><td class="num">9%</td><td class="num">12%</td></tr>
+            <tr><td class="w">апрель</td><td class="num">13%</td><td class="num">16%</td></tr>
+            <tr><td class="w">май</td><td class="num">15%</td><td class="num">20%</td></tr>
+            <tr><td class="w">июнь</td><td class="num">15%</td><td class="num">24%</td></tr>
+            <tr><td class="w">июль</td><td class="num">20%</td><td class="num">24%</td></tr>
+            <tr class="hi"><td class="w">август</td><td class="num">26%</td><td class="num">27%</td></tr>
+            <tr><td class="w">сентябрь</td><td class="num">28%</td><td class="num dim">—</td></tr>
+            <tr><td class="w">октябрь</td><td class="num">33%</td><td class="num dim">—</td></tr>
+            <tr><td class="w">ноябрь</td><td class="num">54%</td><td class="num dim">—</td></tr>
+            <tr class="total"><td>декабрь</td><td class="num">74%</td><td class="num dim">будет известно в январе</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout w">
+        <h3>Ноябрь и декабрь дают 48 процентных пунктов из 74</h3>
+        <p>С 33% в октябре до 74% в декабре — за два месяца больше продлений, чем за предыдущие десять. Это Чёрная пятница и новогодние продажи, и на них держится годовая выручка клубов.</p>
+        <p>Практический вывод: <strong>если ноябрь–декабрь отработают как обычно, когорта 2025 выйдет примерно на те же 74%. Если их провалить, год закроется на 30–35%</strong> — и это будет выглядеть как обвал удержания, хотя обвалится работа с продлениями. Готовить кампанию нужно в октябре.</p>
+      </div>
+      <div class="grid2">
+        <div class="card">
+          <h3>Дорогой тариф держит лучше</h3>
+          <p>Средний чек 2025 у продлившихся — <strong>30 400 ₽</strong>. У не продлившихся — <strong>22 940 ₽</strong>. Кто заплатил больше, тот и остался. Аргумент против скидок на вход.</p>
+        </div>
+        <div class="card">
+          <h3>Покупают только ковидное ядро</h3>
+          <p>Из 20 покупателей 2026 года 17 зарегистрировались в базе в 2019–2020. Годовую подписку берут те, кто пришёл пять-шесть лет назад. Новых там почти нет.</p>
+        </div>
+      </div>
+      <p>«Клуб Б» как отдельная годовая подписка практически не продаётся: за 2024–2025 четыре человека, в 2026 — ни одного. Клуб живёт только внутри двойной подписки.</p>
+    </section>
+
+    <section id="s5">
+      <div class="shead"><div class="n">5</div><h2>Новичок остаётся один — и уходит</h2></div>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Пробник за 199 ₽</th><th class="num">Человек</th><th class="num">Купили подписку после</th><th class="num">Конверсия</th></tr></thead>
+          <tbody>
+            <tr><td class="w">Клуб Б, 2024</td><td class="num">34</td><td class="num">12</td><td class="num">35%</td></tr>
+            <tr><td class="w">Клуб Б, 2025</td><td class="num">71</td><td class="num">14</td><td class="num">20%</td></tr>
+            <tr class="hi"><td class="w">Клуб Б, 2026 <span class="dim">(8 мес)</span></td><td class="num">2</td><td class="num">1</td><td class="num dim">выборка мала</td></tr>
+            <tr><td class="w">Клуб А, 2024</td><td class="num">9</td><td class="num">4</td><td class="num">44%</td></tr>
+            <tr><td class="w">Клуб А, 2025</td><td class="num">9</td><td class="num">4</td><td class="num">44%</td></tr>
+            <tr class="hi"><td class="w">Клуб А, 2026 <span class="dim">(8 мес)</span></td><td class="num">7</td><td class="num">3</td><td class="num dim">выборка мала</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Все 34 пробника 2024 года по Клубу Б проданы за одну неделю декабря. В 2025 их продавали весь год — 71 человек. <strong>В 2026 пробник купили восемь человек на оба клуба, и семеро из них — в мае.</strong> В январе один, в марте и апреле — один и тот же человек, после мая ничего. Инструмент привлечения не сломался, им просто перестали пользоваться: была короткая майская кампания, и на этом всё.</p>
+      <p>По Клубу Б пробник фактически остановлен: два человека за восемь месяцев, 11 и 22 мая.</p>
+      <div class="callout w">
+        <h3>Дыра в продукте: недельный пробник можно покупать бесконечно</h3>
+        <p>Один участник купил недельный доступ в Клуб А за 199 ₽ шесть раз подряд — в марте, апреле и мае. Шесть недель обошлись в 1 520 ₽ вместо примерно 3 680 ₽ за два месяца обычной подписки.</p>
+        <p>Ограничения на повторную покупку пробника нет. Один человек это нашёл — значит найдут и другие, особенно если пробник снова начнут продвигать.</p>
+      </div>
+
+      <h3 style="margin-top:6px">Решение принимается внутри пробного периода</h3>
+      <p>Сколько дней проходит от покупки пробника до первой платной покупки:</p>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Пробник</th><th class="num">Медиана лага</th><th class="num">Купили за ≤14 дней</th><th class="num">15–60 дней</th><th class="num">Позже 60 дней</th></tr></thead>
+          <tbody>
+            <tr class="hi"><td class="w">Клуб Б, 2025</td><td class="num">14 дней</td><td class="num">9 из 14</td><td class="num">2</td><td class="num">3</td></tr>
+            <tr><td class="w">Клуб Б, 2024</td><td class="num">20 дней</td><td class="num">5 из 12</td><td class="num">4</td><td class="num">3</td></tr>
+            <tr><td class="w">Клуб А, 2025</td><td class="num">86 дней</td><td class="num">1 из 3</td><td class="num">0</td><td class="num">2</td></tr>
+            <tr><td class="w">Клуб А, 2024</td><td class="num">243 дня</td><td class="num">0 из 4</td><td class="num">1</td><td class="num">3</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>По Клубу Б окно решения совпадает с самим пробником: две недели, и всё. У Клуб А механика другая — люди возвращаются через месяцы, потому что это ежедневные занятия, к которым можно прийти в любой момент. <strong>«Клуб Б» — последовательная программа: не начал вовремя, не начнёшь вообще.</strong> Сопровождение новичка критично именно здесь.</p>
+
+      <h3 style="margin-top:6px">Конверсия падала весь год при неизменной цене</h3>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Когорта пробника «Клуб Б»</th><th class="num">Человек</th><th class="num">Купили после</th><th class="num">Конверсия</th></tr></thead>
+          <tbody>
+            <tr><td class="w">декабрь 2024</td><td class="num">34</td><td class="num">12</td><td class="num">35%</td></tr>
+            <tr><td class="w">январь 2025</td><td class="num">4</td><td class="num">2</td><td class="num">50%</td></tr>
+            <tr><td class="w">февраль 2025</td><td class="num">33</td><td class="num">7</td><td class="num">21%</td></tr>
+            <tr><td class="w">март 2025</td><td class="num">23</td><td class="num">4</td><td class="num">17%</td></tr>
+            <tr class="hi"><td class="w">апрель 2025</td><td class="num">7</td><td class="num">0</td><td class="num">0%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout w">
+        <h3>Цена всё это время была одна и та же — 199 ₽</h3>
+        <p>Декабрьская когорта шла внутри кампании: людей набирали, им уделяли внимание, конверсия 35%. Дальше пробник продавался сам по себе, без сопровождения — и конверсия сползла к нулю за четыре месяца.</p>
+        <p><strong>Барьер не в деньгах. 199 ₽ — это не сумма, из-за которой принимают решение.</strong> Человек покупает пробник, заходит, не понимает, с чего начать, спросить не у кого — и просто не возвращается. Через две недели доступ заканчивается сам.</p>
+      </div>
+
+      <h3 style="margin-top:6px">Бесплатные и подарочные доступы: 275 человек за три года</h3>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Тип доступа</th><th class="num">Человек</th><th class="num">Купили платно после</th><th class="num">Конверсия</th></tr></thead>
+          <tbody>
+            <tr class="hi"><td class="w">«Клуб Б», 92 дня бесплатно</td><td class="num">18</td><td class="num">15</td><td class="num">83%</td></tr>
+            <tr><td class="w">Подарочные доступы от школы</td><td class="num">31</td><td class="num">12</td><td class="num">39%</td></tr>
+            <tr><td class="w">Клуб А, пробник 1–2 недели</td><td class="num">45</td><td class="num">13</td><td class="num">29%</td></tr>
+            <tr><td class="w">«Клуб Б», пробник 14 дней</td><td class="num">110</td><td class="num">28</td><td class="num">25%</td></tr>
+            <tr><td class="w">Бесплатный пробник после анкеты, авг 2025</td><td class="num">70</td><td class="num">12</td><td class="num">17%</td></tr>
+            <tr class="total"><td>Всего</td><td class="num">275</td><td class="num">79</td><td class="num">29%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout g">
+        <h3>Длинный бесплатный доступ конвертирует в 4 раза лучше короткого</h3>
+        <p>92 дня бесплатно — 83% купили потом платно. 14 дней — 25%. Анкетный пробник — 17%.</p>
+        <p>Выборка по 92 дням маленькая, 18 человек, и на ней нельзя строить план. Но она укладывается в ту же логику: две недели в годовой программе — это слишком мало, чтобы разобраться в устройстве программы, дойти до первого результата и захотеть остаться. За три месяца человек успевает пройти несколько модулей и понять, зачем ему это.</p>
+        <p><strong>Важно не перепутать причину.</strong> Данные не позволяют отделить «дольше времени» от «за это время с человеком успели поработать». Скорее всего работает и то и другое, и увеличение срока без сопровождения даст меньше, чем кажется.</p>
+      </div>
+      <div class="callout w">
+        <h3>Массовая раздача пробников портит статистику удержания</h3>
+        <p>В августе 2025 выдали 70 бесплатных пробников после анкеты. Через две недели они закончились — и в отчёте за август удержание «Клуб Б» упало до <strong>0,25</strong>. Это не отток участников, это истёкшие пробники.</p>
+        <p>Любые цифры удержания по клубам надо считать отдельно от пробных доступов, иначе показатель не значит ничего.</p>
+      </div>
+    </section>
+
+    <section id="s6">
+      <div class="shead"><div class="n">6</div><h2>Кто доходит до оплаты — платит долго</h2></div>
+      <p>Распределение по числу платежей за 2025 год, помесячная подписка.</p>
+      <div class="grid2">
+        <div class="card">
+          <h3>Клуб А · 69 клиентов</h3>
+          <ul>
+            <li><strong>31 человек</strong> — один платёж и всё</li>
+            <li>26 человек — от 2 до 10 платежей</li>
+            <li><strong>12 человек</strong> — 11–13 платежей, то есть весь год</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Клуб Б · 17 клиентов</h3>
+          <ul>
+            <li><strong>8 человек</strong> — один платёж</li>
+            <li>7 человек — от 2 до 10 платежей</li>
+            <li><strong>2 человека</strong> — весь год</li>
+          </ul>
+        </div>
+      </div>
+      <p>Картина в обоих клубах одинаковая и очень характерная: аудитория делится надвое. Либо человек уходит после первого месяца, либо остаётся на весь год. Промежуточного «постепенного затухания» почти нет — <strong>решение об уходе принимается в первый месяц</strong>.</p>
+      <p>Вместе с медианой лага в 14 дней из раздела 05 это даёт один и тот же ответ с двух сторон: судьба участника решается в первые недели. Ресурс куратора нужен там, а не в середине года — <strong>«люди не выдерживают год» описывает не то, что происходит в данных</strong>.</p>
+
+      <h3 style="margin-top:6px">Чем дольше человек платит, тем прочнее он держится</h3>
+      <p>Помесячные клиенты 2025 года — продолжают ли они платить в 2026:</p>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Платежей в 2025</th><th class="num">Клиентов</th><th class="num">Платят в 2026</th><th class="num">Доля</th></tr></thead>
+          <tbody>
+            <tr><td class="w">1 платёж</td><td class="num">45</td><td class="num">8</td><td class="num">18%</td></tr>
+            <tr><td class="w">2–5 платежей</td><td class="num">24</td><td class="num">8</td><td class="num">33%</td></tr>
+            <tr><td class="w">6–10 платежей</td><td class="num">9</td><td class="num">5</td><td class="num">56%</td></tr>
+            <tr class="hi"><td class="w">11–13 платежей, весь год</td><td class="num">16</td><td class="num">16</td><td class="num">100%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout g">
+        <h3>Кто продержался год — остался весь, до одного человека</h3>
+        <p>Все 16 клиентов, плативших весь 2025 год, платят и в 2026. За год они принесли 417 400 ₽.</p>
+        <p>Практический вывод: <strong>довести человека до шестого месяца — и дальше он держится почти без усилий.</strong> Вся работа по удержанию имеет смысл в первом полугодии, а решающая её часть — в первые недели.</p>
+      </div>
+      <div class="callout w">
+        <h3>Но ядро очень маленькое</h3>
+        <p>Шестнадцать человек — это всё устойчивое помесячное ядро обоих клубов. Оно надёжное, но настолько небольшое, что само по себе клубы не удержит: <strong>уход двух-трёх человек здесь заметнее, чем в любой другой группе.</strong></p>
+        <p>Это же объясняет, почему клубы сжимаются. Ядро не разваливается — просто новых, кто мог бы до него дойти, почти не приходит.</p>
+      </div>
+    </section>
+
+    <section id="s7">
+      <div class="shead"><div class="n">7</div><h2>Отток: 332 человека вышли, 99 платят сейчас</h2></div>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Список «были в клубе, не состоят»</th><th class="num">Человек</th><th>Год регистрации большинства</th></tr></thead>
+          <tbody>
+            <tr><td class="w">на 2023 год</td><td class="num">150</td><td>2020 и 2023–2024</td></tr>
+            <tr><td class="w">на 2024 год</td><td class="num">101</td><td>2020 и 2024</td></tr>
+            <tr><td class="w">на 2025 год</td><td class="num">213</td><td>2025 — 100 человек из 213</td></tr>
+            <tr class="total"><td>Уникальных людей</td><td class="num">332</td><td class="dim">списки пересекаются</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>За три года через клубы прошли и вышли 332 человека. Сейчас платят 99. Вернулись из ушедших — <strong>девять человек</strong>, меньше 3%.</p>
+      <p>В списке 2025 года почти половина — люди, зарегистрировавшиеся в базе в том же 2025 году. Это те самые пробники: зашли и вышли в один год, не задержавшись.</p>
+    </section>
+
+    <section id="s8">
+      <div class="shead"><div class="n">8</div><h2>Внешнего привлечения в клубы нет вообще</h2></div>
+      <p>Метки пользователей во всех выгрузках дают одну и ту же картину. Подавляющее большинство — <span class="pill w">свой сайт / referral</span>, то есть переход со своего же сайта. За три года по годовой подписке внешние источники дали единичные заказы: по одному с Instagram и Telegram-каналов.</p>
+      <div class="callout">
+        <h3>Что это значит</h3>
+        <p>Клубы продаются исключительно внутри базы. У них нет собственного канала привлечения — ни рекламы, ни отдельной воронки. Пока в базу заходили люди с других продуктов, клубы наполнялись сами. Как только входящий поток просел, клубы начали сжиматься автоматически.</p>
+        <p>Это же объясняет, почему годовую подписку берут люди 2019–2020 годов регистрации: новым людям клуб просто негде увидеть.</p>
+      </div>
+    </section>
+
+    <section id="s9">
+      <div class="shead"><div class="n">9</div><h2>Что решаем</h2></div>
+      <p class="lede">Проблема не одна, а три, и они решаются по-отдельности. Ниже — вопросы, на которые нужен ответ, а не новое исследование.</p>
+      <div class="grid2" style="margin-bottom:4px">
+        <div class="card">
+          <h3>1. Новичком никто не занимается</h3>
+          <p>Главная. Человек покупает пробник, заходит, не понимает, с чего начать, спросить не у кого — и через две недели доступ истекает сам. Конверсия падает при неизменной цене, значит барьер не денежный.</p>
+        </div>
+        <div class="card">
+          <h3>2. Пробников почти не продают</h3>
+          <p>80 человек в 2025, восемь в 2026 — и семеро из них в один майский всплеск. Даже идеальный онбординг не поможет, если новичков на входе нет.</p>
+        </div>
+        <div class="card">
+          <h3>3. Внешнего привлечения нет вообще</h3>
+          <p>Клубы продаются только своей базе. Пока это так, потолок роста равен размеру базы.</p>
+        </div>
+      </div>
+      <div class="decisions">
+        <div class="dec"><div class="idx">1</div><div class="body">
+          <div class="q">Делаем онбординг для новичка — кто и как?</div>
+          <p>Точка приложения известна: <strong>первые 14 дней после покупки пробника</strong>. Что нужно решить: кто встречает человека, в каком канале, что спрашивает на входе — уровень, цель, почему заинтересовался, что хочет получить — и как объясняет устройство клуба и его ценность.</p>
+          <p>Отдельно: как человек узнаёт, с чего начать. Сейчас он попадает в годовую программу без карты маршрута.</p>
+        </div></div>
+        <div class="dec"><div class="idx">2</div><div class="body">
+          <div class="q">Сначала онбординг, потом цена — не наоборот</div>
+          <p>Повышать порог входа до того, как появится сопровождение, рискованно: за 199 ₽ человек просто уходит молча, за 500–1000 ₽ он придёт за возвратом. Данных о возвратах в выгрузках нет, поэтому это соображение, а не расчёт — но последовательность действий оно задаёт однозначно.</p>
+        </div></div>
+        <div class="dec"><div class="idx">3</div><div class="body">
+          <div class="q">Возвращаем пробник как регулярный инструмент?</div>
+          <p>Это единственный работающий вход в клуб, и в 2026 им не пользовались. Решение: кто отвечает за регулярную продажу пробника, с какой периодичностью и в связке с каким контентом. Запускать имеет смысл одновременно с онбордингом, иначе повторится 2025 год — набрали и потеряли.</p>
+        </div></div>
+        <div class="dec"><div class="idx">4</div><div class="body">
+          <div class="q">Удлиняем пробный период для «Клуб Б»?</div>
+          <p>14 дней дают 17–25%, 92 дня — 83% на выборке из 18 человек. Гипотеза проверяемая и дешёвая: месяц вместо двух недель. Но проверять её надо вместе с сопровождением, иначе тест ничего не покажет.</p>
+        </div></div>
+        <div class="dec"><div class="idx">5</div><div class="body">
+          <div class="q">Что делаем с «Клубом Б» как отдельным продуктом?</div>
+          <p>Помесячно в 2026 — 17 человек, годовую отдельно не купил никто, отдельный пробник продан один раз. Клуб существует только как часть двойной подписки. Варианты: оставить внутри пакета, переупаковать в короткие сезонные модули с промежуточными финишами, или закрыть как самостоятельный продукт.</p>
+        </div></div>
+        <div class="dec"><div class="idx">6</div><div class="body">
+          <div class="q">Закрываем возможность покупать пробник повторно</div>
+          <p>Техническая правка на пять минут, но сделать её надо до того, как пробник снова начнут продвигать. Иначе часть новичков будет годами сидеть на недельных доступах вместо подписки.</p>
+        </div></div>
+        <div class="dec"><div class="idx">7</div><div class="body">
+          <div class="q">Откуда в клубы приходят новые люди?</div>
+          <p>Сейчас — ниоткуда, кроме своей базы. Вопрос не срочный по сравнению с первыми четырьмя, но без ответа на него потолок роста клубов равен размеру существующей базы.</p>
+        </div></div>
+      </div>
+      <div class="callout w">
+        <h3>Чего в данных нет</h3>
+        <p>Все цифры в документе — <strong>только по клиентам</strong>. Доступы для сотрудников школы по 200 ₽ вынесены отдельно: их 35 человек, они дают почти половину всех заказов при 10% выручки и искажают любую статистику по количеству. Не-клубные позиции, попавшие в выгрузки (июльская конференция, два мастер-класса), тоже исключены.</p>
+        <p>Пробные покупки лежат в двух выгрузках сразу: часть в «Тестовый доступ — платно», часть в «Купили клуб (не годовая подписка)». Цифры в этом документе посчитаны по объединённому набору с дедупликацией по ID заказа — если сравнивать с любым отдельным файлом, они не сойдутся.</p>
+        <p>Дат окончания подписок и статусов автопродления — срок жизни считался по числу платежей. Фактической посещаемости занятий: человек может платить и не ходить, и такой отток не виден, пока не перестанет платить. Прогресса по этапам годовой программы «Клуб Б» — в базе есть пятнадцать полей от «схемы» до «финала», по ним можно построить точную точку обрыва внутри года. Это следующий запрос к техслужбе, но решения из этого списка он не блокирует.</p>
+      </div>
+    </section>
+
+    <footer>
+      Источники: выгрузки GetCourse «Тестовый доступ — платно», «Купили клуб (не годовая подписка)», «Купили полугодовую/годовую подписку», «Тестовые, подарочные доступы в клубы», «Были в клубе, не состоят», «Статистика КЛУБЫ», а также файлы «Аналитика Клуб Б» за 2023, 2024 и 2025 годы. Данные на конец августа 2026. Выручка считается по полю «Оплачено». «Купили подписку после» означает любую платную покупку клуба с датой позже пробного доступа.
+    </footer>
+
+  </main>
+</div>
+</div>
+
+<script>
+  (function(){
+    var links = Array.prototype.slice.call(document.querySelectorAll('nav.toc a'));
+    var map = {};
+    links.forEach(function(a){
+      var el = document.querySelector(a.getAttribute('href'));
+      if (el) map[el.id] = a;
+    });
+    if (!window.IntersectionObserver) return;
+    var obs = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if (e.isIntersecting){
+          links.forEach(function(l){ l.classList.remove('on'); });
+          if (map[e.target.id]) map[e.target.id].classList.add('on');
+        }
+      });
+    }, { rootMargin: '-10% 0px -75% 0px', threshold: 0 });
+    Object.keys(map).forEach(function(id){ obs.observe(document.getElementById(id)); });
+  })();
+</script>
+
+</body></html>

@@ -1,0 +1,348 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}</style></head><body><div style="max-width:1320px;margin:0 auto;padding:14px clamp(16px,3vw,32px) 0"><p style="margin:0;padding:10px 14px;border-radius:6px;background:#FFF4E5;color:#6B4A1E;font:15px/1.45 -apple-system,Segoe UI,sans-serif">Пример из практики. Названия, метки и суммы изменены по просьбе клиента, пропорции и выводы сохранены.</p></div>
+<title>Пример: окупается ли рекламный трафик</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+<style>
+  :root{
+    --ground:#F1F4F5;
+    --surface:#FFFFFF;
+    --surface-2:#E9EEF0;
+    --ink:#131A21;
+    --ink-2:#4A5A66;
+    --ink-3:#7C8B96;
+    --line:#D6DEE2;
+    --line-strong:#B9C5CB;
+    --accent:#0C6763;
+    --accent-soft:#D9EAE8;
+    --clay:#A9563A;
+    --clay-soft:#F0DED7;
+    --shadow:0 1px 2px rgba(19,26,33,.05), 0 8px 24px -18px rgba(19,26,33,.35);
+  }
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){
+      --ground:#0E1418;
+      --surface:#151D22;
+      --surface-2:#1C262C;
+      --ink:#E6EDEF;
+      --ink-2:#A3B2BA;
+      --ink-3:#75858E;
+      --line:#26333A;
+      --line-strong:#38484F;
+      --accent:#4FB5AD;
+      --accent-soft:#173330;
+      --clay:#D98A6B;
+      --clay-soft:#33211A;
+      --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -18px rgba(0,0,0,.8);
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#0E1418;
+    --surface:#151D22;
+    --surface-2:#1C262C;
+    --ink:#E6EDEF;
+    --ink-2:#A3B2BA;
+    --ink-3:#75858E;
+    --line:#26333A;
+    --line-strong:#38484F;
+    --accent:#4FB5AD;
+    --accent-soft:#173330;
+    --clay:#D98A6B;
+    --clay-soft:#33211A;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -18px rgba(0,0,0,.8);
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    background:var(--ground);
+    color:var(--ink);
+    font-family:"Source Serif 4",Georgia,"Times New Roman",serif;
+    font-size:17px;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1060px;margin:0 auto;padding:clamp(28px,5vw,64px) clamp(18px,4vw,40px) 96px;display:flex;flex-direction:column;gap:clamp(36px,5vw,60px)}
+
+  .eyebrow{
+    font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+    font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--ink-3);
+  }
+  h1{
+    font-family:Archivo,"Helvetica Neue",Arial,sans-serif;
+    font-weight:700;font-size:clamp(30px,4.6vw,46px);line-height:1.06;
+    letter-spacing:-.022em;margin:.28em 0 0;text-wrap:balance;
+  }
+  h2{
+    font-family:Archivo,"Helvetica Neue",Arial,sans-serif;
+    font-weight:600;font-size:clamp(20px,2.6vw,25px);line-height:1.2;
+    letter-spacing:-.014em;margin:0;text-wrap:balance;
+  }
+  h3{
+    font-family:Archivo,"Helvetica Neue",Arial,sans-serif;
+    font-weight:600;font-size:16px;letter-spacing:-.008em;margin:0;
+  }
+  p{margin:0;max-width:66ch}
+
+  header .sub{color:var(--ink-2);margin-top:14px;font-size:18px}
+
+  .criteria{
+    display:grid;gap:1px;background:var(--line);
+    border:1px solid var(--line);border-radius:3px;overflow:hidden;
+    grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
+    margin-top:26px;
+  }
+  .criteria div{background:var(--surface);padding:14px 16px}
+  .criteria dt{
+    font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.13em;
+    text-transform:uppercase;color:var(--ink-3);margin:0 0 5px;
+  }
+  .criteria dd{margin:0;font-size:15px;line-height:1.45;color:var(--ink)}
+
+  section{display:flex;flex-direction:column;gap:20px}
+  .head{display:flex;flex-direction:column;gap:6px}
+
+  .stats{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}
+  .stat{
+    background:var(--surface);border:1px solid var(--line);border-radius:3px;
+    padding:20px 20px 18px;box-shadow:var(--shadow);
+    display:flex;flex-direction:column;gap:6px;
+  }
+  .stat.lead{border-color:var(--accent);background:var(--accent-soft)}
+  .stat .k{
+    font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.13em;
+    text-transform:uppercase;color:var(--ink-3);
+  }
+  .stat.lead .k{color:var(--accent)}
+  .stat .v{
+    font-family:Archivo,sans-serif;font-weight:700;font-size:40px;line-height:1;
+    letter-spacing:-.03em;font-variant-numeric:tabular-nums;
+  }
+  .stat .n{font-size:14.5px;color:var(--ink-2);line-height:1.4}
+
+  .tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:3px;background:var(--surface);box-shadow:var(--shadow)}
+  table{border-collapse:collapse;width:100%;font-size:15px}
+  th,td{padding:9px 14px;text-align:left;border-bottom:1px solid var(--line);vertical-align:baseline}
+  thead th{
+    font-family:"IBM Plex Mono",monospace;font-weight:500;font-size:10.5px;
+    letter-spacing:.11em;text-transform:uppercase;color:var(--ink-3);
+    border-bottom:1px solid var(--line-strong);white-space:nowrap;
+  }
+  tbody tr:last-child td{border-bottom:none}
+  td.num,th.num{text-align:right;font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;font-size:14px;white-space:nowrap}
+  tr.total td{border-top:1px solid var(--line-strong);font-weight:600;background:var(--surface-2)}
+  tr.hi td{background:var(--accent-soft)}
+  td.mono{font-family:"IBM Plex Mono",monospace;font-size:13px;color:var(--ink-2)}
+  .zero{color:var(--ink-3)}
+
+  .pill{
+    display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:11px;
+    letter-spacing:.05em;padding:2px 7px;border-radius:2px;white-space:nowrap;
+  }
+  .pill.paid{background:var(--accent-soft);color:var(--accent);border:1px solid var(--accent)}
+  .pill.open{background:var(--clay-soft);color:var(--clay);border:1px solid var(--clay)}
+  .pill.dead{background:var(--surface-2);color:var(--ink-3);border:1px solid var(--line-strong)}
+
+  .bar{display:block;height:5px;border-radius:1px;background:var(--accent);opacity:.75}
+  .bartrack{display:block;min-width:70px;background:var(--surface-2);border-radius:1px}
+
+  .months{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;align-items:end;min-height:160px}
+  .months .col{display:flex;flex-direction:column;justify-content:flex-end;gap:8px;text-align:center}
+  .months .fill{background:var(--accent);border-radius:2px 2px 0 0;opacity:.85}
+  .months .val{font-family:"IBM Plex Mono",monospace;font-size:13px;font-variant-numeric:tabular-nums}
+  .months .lbl{font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--ink-3);letter-spacing:.06em}
+
+  .callout{
+    border-left:3px solid var(--clay);background:var(--surface);
+    padding:16px 20px;display:flex;flex-direction:column;gap:8px;border-radius:0 3px 3px 0;
+    box-shadow:var(--shadow);
+  }
+  .callout h3{color:var(--clay)}
+
+  .notes{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+  .note{background:var(--surface);border:1px solid var(--line);border-radius:3px;padding:18px 20px;display:flex;flex-direction:column;gap:8px}
+  .note p{font-size:15.5px;color:var(--ink-2)}
+  .note strong{color:var(--ink)}
+
+  footer{border-top:1px solid var(--line);padding-top:18px;color:var(--ink-3);font-size:14px}
+  hr.rule{border:none;border-top:1px solid var(--line);margin:0}
+</style>
+
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">Онлайн-школа · GetCourse · платные программы</div>
+    <h1>Сколько заказов принёс внешний трафик</h1>
+    <p class="sub">Декабрь 2025 — август 2026. Разбор выгрузки заказов и пользователей: кто пришёл по метке, сколько заказов сделал и сколько из них платных.</p>
+    <dl class="criteria">
+      <div><dt>Период заказов</dt><dd>01.12.2025 — 04.08.2026</dd></div>
+      <div><dt>Всего заказов в периоде</dt><dd>994</dd></div>
+      <div><dt>Пользователей</dt><dd>589</dd></div>
+      <div><dt>Пришли в базу в периоде</dt><dd>366</dd></div>
+    </dl>
+  </header>
+
+  <section>
+    <div class="head">
+      <div class="eyebrow">Ответ</div>
+      <h2>107 человек с внешнего трафика сделали 143 заказа</h2>
+    </div>
+    <div class="stats">
+      <div class="stat lead">
+        <span class="k">Заказов всего</span>
+        <span class="v">143</span>
+        <span class="n">от 107 пользователей, пришедших по метке</span>
+      </div>
+      <div class="stat">
+        <span class="k">Бесплатных</span>
+        <span class="v">136</span>
+        <span class="n">95% всех заказов когорты</span>
+      </div>
+      <div class="stat">
+        <span class="k">Платных заказов</span>
+        <span class="v">7</span>
+        <span class="n">заказ на платный продукт</span>
+      </div>
+      <div class="stat">
+        <span class="k">Из них оплачено</span>
+        <span class="v">2</span>
+        <span class="n">выручка 48 260 ₽</span>
+      </div>
+    </div>
+    <p>Считались пользователи с utm-меткой внешнего источника — реклама, соцсети, Telegram-каналы, Яндекс. Метки своих сайтов (<span class="pill dead">свой сайт / referral</span>), рассылок и служебных ботов исключены: это своя же база, а не трафик.</p>
+  </section>
+
+  <hr class="rule">
+
+  <section>
+    <div class="head">
+      <div class="eyebrow">Детализация</div>
+      <h2>Все семь платных заказов</h2>
+    </div>
+    <div class="tablewrap">
+      <table>
+        <thead>
+          <tr><th>Дата</th><th>Продукт</th><th>Статус</th><th class="num">Цена, ₽</th><th class="num">Оплачено, ₽</th><th>Метка</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="num">06.05.2026</td><td>Программа А, весенний поток</td><td><span class="pill paid">оплачен</span></td><td class="num">24 130</td><td class="num">24 130</td><td class="mono">telegram / partner_chat</td></tr>
+          <tr><td class="num">12.05.2026</td><td>Программа А, весенний поток</td><td><span class="pill paid">оплачен</span></td><td class="num">24 130</td><td class="num">24 130</td><td class="mono">partner_ads / —</td></tr>
+          <tr><td class="num">06.05.2026</td><td>Программа А, весенний поток</td><td><span class="pill dead">отменён</span></td><td class="num">24 130</td><td class="num zero">0</td><td class="mono">partner_ads / —</td></tr>
+          <tr><td class="num">09.06.2026</td><td>Программа Б, пакет «Стандарт»</td><td><span class="pill dead">отменён</span></td><td class="num">15 240</td><td class="num zero">0</td><td class="mono">vk_ads / promo</td></tr>
+          <tr><td class="num">15.07.2026</td><td>Программа Б, пакет «Стандарт»</td><td><span class="pill open">новый</span></td><td class="num">15 240</td><td class="num zero">0</td><td class="mono">— / promo</td></tr>
+          <tr><td class="num">15.07.2026</td><td>Программа Б, пакет «Стандарт»</td><td><span class="pill open">новый</span></td><td class="num">15 240</td><td class="num zero">0</td><td class="mono">— / promo</td></tr>
+          <tr><td class="num">21.07.2026</td><td>Программа Б, пакет «Стандарт»</td><td><span class="pill open">новый</span></td><td class="num">15 240</td><td class="num zero">0</td><td class="mono">— / promo</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Три заказа в статусе «новый» — от 15 и 21 июля, они ещё могут дойти до оплаты. Отменённых — два.</p>
+  </section>
+
+  <section>
+    <div class="head">
+      <div class="eyebrow">Источники</div>
+      <h2>Откуда пришли эти 107 человек</h2>
+    </div>
+    <div class="tablewrap">
+      <table>
+        <thead>
+          <tr><th>utm_source</th><th>utm_medium</th><th class="num">Польз.</th><th class="num">Заказов</th><th class="num">Беспл.</th><th class="num">Платных</th><th class="num">Выручка, ₽</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="mono">— (пусто)</td><td class="mono">promo</td><td class="num">57</td><td class="num">85</td><td class="num">82</td><td class="num">3</td><td class="num zero">0</td></tr>
+          <tr><td class="mono">vk_ads</td><td class="mono">promo</td><td class="num">33</td><td class="num">40</td><td class="num">39</td><td class="num">1</td><td class="num zero">0</td></tr>
+          <tr><td class="mono">telegram</td><td class="mono">club_chat</td><td class="num">3</td><td class="num">3</td><td class="num">3</td><td class="num zero">0</td><td class="num zero">0</td></tr>
+          <tr><td class="mono">tg_but</td><td class="mono">promo</td><td class="num">2</td><td class="num">3</td><td class="num">3</td><td class="num zero">0</td><td class="num zero">0</td></tr>
+          <tr><td class="mono">partner_ads</td><td class="mono">—</td><td class="num">2</td><td class="num">2</td><td class="num zero">0</td><td class="num">2</td><td class="num">24 130</td></tr>
+          <tr><td class="mono">max12</td><td class="mono">—</td><td class="num">2</td><td class="num">2</td><td class="num">2</td><td class="num zero">0</td><td class="num zero">0</td></tr>
+          <tr><td class="mono">tg</td><td class="mono">chatinvit</td><td class="num">2</td><td class="num">2</td><td class="num">2</td><td class="num zero">0</td><td class="num zero">0</td></tr>
+          <tr><td class="mono">telegram</td><td class="mono">partner_chat</td><td class="num">1</td><td class="num">1</td><td class="num zero">0</td><td class="num">1</td><td class="num">24 130</td></tr>
+          <tr><td class="mono">telegram</td><td class="mono">city_chats</td><td class="num">1</td><td class="num">1</td><td class="num">1</td><td class="num zero">0</td><td class="num zero">0</td></tr>
+          <tr><td class="mono">tg_school</td><td class="mono">promo</td><td class="num">1</td><td class="num">1</td><td class="num">1</td><td class="num zero">0</td><td class="num zero">0</td></tr>
+          <tr><td class="mono">vk</td><td class="mono">main</td><td class="num">1</td><td class="num">1</td><td class="num">1</td><td class="num zero">0</td><td class="num zero">0</td></tr>
+          <tr><td class="mono">offline_event</td><td class="mono">—</td><td class="num">1</td><td class="num">1</td><td class="num">1</td><td class="num zero">0</td><td class="num zero">0</td></tr>
+          <tr><td class="mono">max09</td><td class="mono">—</td><td class="num">1</td><td class="num">1</td><td class="num">1</td><td class="num zero">0</td><td class="num zero">0</td></tr>
+          <tr class="total"><td>Итого</td><td></td><td class="num">107</td><td class="num">143</td><td class="num">136</td><td class="num">7</td><td class="num">48 260</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout">
+      <h3>Первые две строки — одна и та же кампания</h3>
+      <p>У 57 человек <span class="mono">utm_source</span> не записался, но в <span class="mono">utm_campaign</span> стоят числовые ID кампаний VK Ads. Это тот же <span class="mono">vk_ads / promo</span>.</p>
+      <p><strong>Итог по VK Ads: 90 пользователей, 125 заказов, 4 заказа на платный продукт, ни одной оплаты.</strong></p>
+    </div>
+  </section>
+
+  <section>
+    <div class="head">
+      <div class="eyebrow">Динамика</div>
+      <h2>Трафик пошёл только в июне–июле</h2>
+    </div>
+    <div class="months" aria-label="Заказы когорты по месяцам">
+      <div class="col"><span class="val">2</span><span class="fill" style="height:3px"></span><span class="lbl">12.25</span></div>
+      <div class="col"><span class="val">2</span><span class="fill" style="height:3px"></span><span class="lbl">03.26</span></div>
+      <div class="col"><span class="val">5</span><span class="fill" style="height:6px"></span><span class="lbl">05.26</span></div>
+      <div class="col"><span class="val">37</span><span class="fill" style="height:44px"></span><span class="lbl">06.26</span></div>
+      <div class="col"><span class="val">97</span><span class="fill" style="height:115px"></span><span class="lbl">07.26</span></div>
+    </div>
+    <p>134 из 143 заказов пришлись на июнь и июль 2026. Декабрь–май дали девять. По факту это результат двух месяцев работы, а не девяти — и оценивать открутку стоит именно так.</p>
+  </section>
+
+  <hr class="rule">
+
+  <section>
+    <div class="head">
+      <div class="eyebrow">Контекст</div>
+      <h2>Все 994 заказа периода по группам</h2>
+    </div>
+    <div class="tablewrap">
+      <table>
+        <thead>
+          <tr><th>Группа пользователей</th><th class="num">Польз.</th><th class="num">Заказов</th><th class="num">Беспл.</th><th class="num">Платных</th><th class="num">Оплачено</th><th class="num">Выручка, ₽</th><th>Доля выручки</th></tr>
+        </thead>
+        <tbody>
+          <tr class="hi"><td>Внешний трафик, пришли с декабря</td><td class="num">107</td><td class="num">143</td><td class="num">136</td><td class="num">7</td><td class="num">2</td><td class="num">48 260</td><td><span class="bartrack"><span class="bar" style="width:9%"></span></span></td></tr>
+          <tr><td>Внешний трафик, в базе давно</td><td class="num">68</td><td class="num">125</td><td class="num">113</td><td class="num">12</td><td class="num">7</td><td class="num">72 120</td><td><span class="bartrack"><span class="bar" style="width:14%"></span></span></td></tr>
+          <tr><td>Свой сайт / referral</td><td class="num">76</td><td class="num">241</td><td class="num">182</td><td class="num">59</td><td class="num">49</td><td class="num">513 270</td><td><span class="bartrack"><span class="bar" style="width:100%"></span></span></td></tr>
+          <tr><td>Рассылки и боты по своей базе</td><td class="num">38</td><td class="num">68</td><td class="num">62</td><td class="num">6</td><td class="num">5</td><td class="num">77 220</td><td><span class="bartrack"><span class="bar" style="width:15%"></span></span></td></tr>
+          <tr><td>Органика, пришли с декабря</td><td class="num">242</td><td class="num">290</td><td class="num">280</td><td class="num">10</td><td class="num">4</td><td class="num">5 680</td><td><span class="bartrack"><span class="bar" style="width:1%"></span></span></td></tr>
+          <tr><td>Органика, в базе давно</td><td class="num">58</td><td class="num">127</td><td class="num">96</td><td class="num">31</td><td class="num">21</td><td class="num">154 180</td><td><span class="bartrack"><span class="bar" style="width:30%"></span></span></td></tr>
+          <tr class="total"><td>Итого</td><td class="num">589</td><td class="num">994</td><td class="num">869</td><td class="num">125</td><td class="num">88</td><td class="num">870 720</td><td></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <div class="head">
+      <div class="eyebrow">Выводы</div>
+      <h2>Что из этого следует</h2>
+    </div>
+    <div class="notes">
+      <div class="note">
+        <h3>Деньги делает старая база</h3>
+        <p><strong>754 560 ₽ из 870 720 ₽ — 87%</strong> — принесли те, кто был в базе до декабря 2025. Все пришедшие с декабря, любым источником, дали 116 170 ₽.</p>
+      </div>
+      <div class="note">
+        <h3>Дело не в качестве трафика</h3>
+        <p>Органика с декабря — <strong>242 человека, 290 заказов, 5 680 ₽</strong>. И трафик, и органика конвертируются в оплату на уровне 1–2%. Новый пользователь не покупает независимо от того, откуда пришёл.</p>
+      </div>
+      <div class="note">
+        <h3>Разрыв между регистрацией и оплатой</h3>
+        <p>Из 143 заказов когорты <strong>136 бесплатных</strong>. Люди доходят до регистрации на эфир и там останавливаются. Слабое место — участок между бесплатным входом и оффером, а не закупка.</p>
+      </div>
+      <div class="note">
+        <h3>VK Ads пока в ноль</h3>
+        <p>Основной канал — <strong>90 человек, 125 заказов, ни одной оплаты</strong>. Три заказа ещё в статусе «новый», по ним итог не закрыт.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    Источник: выгрузка заказов и пользователей GetCourse за декабрь 2025 — август 2026. Заказы до декабря 2025 исключены. «Платный заказ» — заказ на платный продукт; «оплачено» — заказ с фактической оплатой.
+  </footer>
+
+</div>
+
+</body></html>
