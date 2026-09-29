@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Кто ты в работе с ИИ? · Нейропродюсер</title>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;700;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#07070F;--bg2:#0E0E1C;
+  --accent:#8B5CF6;--accent-l:#A78BFA;--accent-glow:rgba(139,92,246,0.12);
+  --text:#F9FAFB;--muted:#9CA3AF;--dim:#4B5563;
+  --border:rgba(255,255,255,0.07);--card:rgba(255,255,255,0.04)
+}
+html,body{min-height:100vh;background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;line-height:1.6;overflow-x:hidden}
+
+/* ── SCREENS ── */
+.screen{min-height:100vh;display:none;flex-direction:column;opacity:0;transition:opacity 0.35s ease}
+.screen.active{display:flex}
+.screen.visible{opacity:1}
+
+/* ── HEADER ── */
+.qheader{display:flex;justify-content:space-between;align-items:center;padding:22px 40px;border-bottom:1px solid var(--border)}
+.brand{font-family:'Unbounded',sans-serif;font-size:11px;font-weight:600;letter-spacing:.18em;color:var(--accent-l)}
+.prog{font-family:'Unbounded',sans-serif;font-size:11px;color:var(--dim)}
+.prog .cur{color:var(--accent-l);font-weight:700}
+
+/* ── CONTENT WRAPPER ── */
+.qwrap{flex:1;display:flex;flex-direction:column;justify-content:center;padding:56px 40px;max-width:700px;margin:0 auto;width:100%}
+
+/* ── START SCREEN ── */
+.pill{display:inline-flex;gap:20px;padding:9px 20px;border:1px solid var(--border);border-radius:100px;font-size:11px;letter-spacing:.1em;color:var(--dim);margin-bottom:36px}
+.pill b{color:var(--accent-l)}
+.htitle{font-family:'Unbounded',sans-serif;font-size:clamp(26px,5vw,48px);font-weight:900;line-height:1.15;margin-bottom:22px}
+.htitle em{font-style:italic;font-weight:400;color:var(--accent-l)}
+.hdesc{font-size:16px;color:var(--muted);line-height:1.75;margin-bottom:44px;max-width:520px}
+.hdesc strong{color:var(--text)}
+.btn{display:inline-flex;align-items:center;gap:10px;padding:15px 30px;background:var(--accent);color:#fff;font-family:'Inter',sans-serif;font-size:15px;font-weight:600;border:none;border-radius:8px;cursor:pointer;transition:background .2s,transform .2s;text-decoration:none}
+.btn:hover{background:var(--accent-l);transform:translateY(-1px)}
+.start-meta{display:flex;gap:28px;margin-top:36px;flex-wrap:wrap}
+.smeta{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--dim);letter-spacing:.08em}
+.sdot{width:5px;height:5px;border-radius:50%;background:var(--accent);flex-shrink:0}
+
+/* ── RULES ── */
+.rlabel{font-family:'Unbounded',sans-serif;font-size:10px;letter-spacing:.22em;color:var(--accent-l);margin-bottom:22px}
+.rtitle{font-family:'Unbounded',sans-serif;font-size:clamp(22px,4vw,36px);font-weight:700;line-height:1.3;margin-bottom:44px}
+.rtitle em{font-style:italic;font-weight:400}
+.rules{display:flex;flex-direction:column;gap:22px;margin-bottom:44px}
+.rule{display:flex;gap:18px;align-items:flex-start}
+.rnum{font-family:'Unbounded',sans-serif;font-size:12px;font-weight:700;color:var(--accent);min-width:24px;padding-top:2px}
+.rtext{font-size:15px;color:var(--muted);line-height:1.65}
+.rtext strong{color:var(--text)}
+
+/* ── QUESTION ── */
+.qlabel{font-family:'Unbounded',sans-serif;font-size:9px;letter-spacing:.22em;color:var(--dim);margin-bottom:12px}
+.qtitle{font-family:'Unbounded',sans-serif;font-size:clamp(19px,3.2vw,30px);font-weight:700;line-height:1.3;margin-bottom:36px}
+.alist{display:flex;flex-direction:column;gap:11px}
+.aitem{display:flex;align-items:flex-start;gap:15px;padding:16px 18px;border:1px solid var(--border);border-radius:10px;cursor:pointer;transition:border-color .2s,background .2s;background:var(--card)}
+.aitem:hover{border-color:rgba(139,92,246,.4);background:rgba(139,92,246,.07)}
+.aitem.sel{border-color:var(--accent);background:rgba(139,92,246,.1)}
+.aitem.locked{pointer-events:none;opacity:.4}
+.aletter{font-family:'Unbounded',sans-serif;font-size:10px;font-weight:700;color:var(--accent-l);min-width:18px;padding-top:2px}
+.atext{font-size:14px;color:var(--text);line-height:1.55}
+
+/* ── ANALYSIS PANEL ── */
+#apanel{position:fixed;bottom:0;left:0;right:0;background:var(--bg2);border-top:1px solid rgba(139,92,246,.25);padding:24px 40px 30px;transform:translateY(110%);transition:transform .38s cubic-bezier(.16,1,.3,1);z-index:200}
+#apanel.show{transform:translateY(0)}
+.ap-label{font-family:'Unbounded',sans-serif;font-size:8px;letter-spacing:.25em;color:var(--accent-l);margin-bottom:10px}
+.ap-text{font-size:14px;color:var(--muted);line-height:1.7;max-width:600px;margin-bottom:18px}
+.ap-next{display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:var(--text);cursor:pointer;border:none;background:none;transition:gap .2s}
+.ap-next:hover{gap:13px}
+
+/* ── INTERMEDIATE ── */
+.inter-wrap{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:40px}
+.inter-top{font-family:'Unbounded',sans-serif;font-size:16px;font-weight:600;color:var(--accent-l);margin-bottom:20px}
+.inter-main{font-family:'Unbounded',sans-serif;font-size:clamp(22px,4vw,36px);font-weight:700;line-height:1.3;color:var(--dim);margin-bottom:12px}
+.inter-main b{color:var(--text)}
+.inter-sub{font-family:'Unbounded',sans-serif;font-size:clamp(20px,3.5vw,32px);font-weight:700;color:var(--accent-l);margin-bottom:44px}
+.inter-go{font-size:13px;color:var(--dim);cursor:pointer;letter-spacing:.05em;transition:color .2s;border:none;background:none}
+.inter-go:hover{color:var(--text)}
+
+/* ── RESULT ── */
+#screen-result{overflow-y:auto}
+.res-wrap{max-width:780px;margin:0 auto;width:100%;padding:40px 40px 80px}
+.res-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:40px;padding-bottom:20px;border-bottom:1px solid var(--border)}
+.res-brand{font-family:'Unbounded',sans-serif;font-size:10px;letter-spacing:.18em;color:var(--accent-l)}
+.res-date{font-size:11px;color:var(--dim)}
+.arch-num{font-family:'Unbounded',sans-serif;font-size:9px;letter-spacing:.2em;color:var(--dim);margin-bottom:12px}
+.arch-headline{font-family:'Unbounded',sans-serif;font-size:clamp(24px,4vw,40px);font-weight:900;line-height:1.2;color:var(--accent-l);margin-bottom:18px}
+.arch-sub{font-size:16px;font-style:italic;color:var(--muted);line-height:1.7;margin-bottom:44px;padding-bottom:36px;border-bottom:1px solid var(--border)}
+.three{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:36px}
+@media(max-width:560px){.three{grid-template-columns:1fr}}
+.pcard{padding:18px;background:var(--card);border:1px solid var(--border);border-radius:10px}
+.pc-label{font-family:'Unbounded',sans-serif;font-size:8px;letter-spacing:.2em;color:var(--dim);margin-bottom:9px}
+.pc-text{font-size:13px;color:var(--muted);line-height:1.62}
+.scales{margin-bottom:36px}
+.sc-label{font-family:'Unbounded',sans-serif;font-size:8px;letter-spacing:.2em;color:var(--dim);margin-bottom:18px}
+.sc-row{display:flex;align-items:center;gap:14px;margin-bottom:12px}
+.sc-name{font-size:13px;color:var(--muted);min-width:185px}
+.sc-bg{flex:1;height:5px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden}
+.sc-fill{height:100%;background:var(--accent);border-radius:3px;width:0;transition:width 1.3s cubic-bezier(.16,1,.3,1)}
+.sc-val{font-family:'Unbounded',sans-serif;font-size:11px;font-weight:700;color:var(--accent-l);min-width:36px;text-align:right}
+.exit-box{padding:22px 24px;background:var(--accent-glow);border:1px solid rgba(139,92,246,.3);border-radius:12px;margin-bottom:56px}
+.exit-label{font-family:'Unbounded',sans-serif;font-size:8px;letter-spacing:.22em;color:var(--accent-l);margin-bottom:9px}
+.exit-text{font-size:16px;font-weight:600;color:var(--text);line-height:1.55}
+
+/* ── SUBSCRIPTION ── */
+.sub-section{border-top:1px solid var(--border);padding:48px 40px;text-align:center;max-width:780px;margin:0 auto;width:100%}
+.sub-title{font-family:'Unbounded',sans-serif;font-size:clamp(18px,3vw,28px);font-weight:700;line-height:1.3;margin-bottom:14px}
+.sub-text{font-size:14px;color:var(--muted);line-height:1.75;max-width:460px;margin:0 auto 30px}
+.sub-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.btn-outline{display:inline-flex;align-items:center;gap:8px;padding:13px 24px;background:transparent;color:var(--text);font-family:'Inter',sans-serif;font-size:14px;font-weight:600;border:1px solid rgba(139,92,246,.5);border-radius:8px;cursor:pointer;transition:all .2s;text-decoration:none}
+.btn-outline:hover{border-color:var(--accent);background:var(--accent-glow)}
+</style>
+</head>
+<body>
+
+<!-- ════════════ START ════════════ -->
+<div id="screen-start" class="screen active">
+  <div class="qwrap" style="justify-content:center">
+    <div class="pill"><b>ДИАГНОСТИКА</b> · 5 МИНУТ · БЕЗ EMAIL</div>
+    <h1 class="htitle">Кто ты в работе<br>с ИИ <em>на самом деле?</em></h1>
+    <p class="hdesc">Не тест на знание инструментов. <strong>6 паттернов</strong>, по которым люди работают с ИИ — каждый со своей скрытой логикой, которая держит тебя на одном уровне.<br>Через 13 вопросов ты увидишь свой. И что именно мешает двигаться дальше.</p>
+    <button class="btn" onclick="goRules()">Начать &nbsp;→</button>
+    <div class="start-meta">
+      <div class="smeta"><div class="sdot"></div>БЕЗ ПРАВИЛЬНЫХ ОТВЕТОВ</div>
+      <div class="smeta"><div class="sdot"></div>ТОЛЬКО ДЛЯ СЕБЯ</div>
+      <div class="smeta"><div class="sdot"></div>ПОЛНЫЙ РАЗБОР В КОНЦЕ</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ RULES ════════════ -->
+<div id="screen-rules" class="screen">
+  <div class="qwrap">
+    <div class="rlabel">ПЕРЕД СТАРТОМ</div>
+    <h2 class="rtitle">3 простых правила,<br><em>чтобы тест работал по-настоящему</em></h2>
+    <div class="rules">
+      <div class="rule">
+        <div class="rnum">1</div>
+        <div class="rtext">Отвечай <strong>первым, что приходит в голову</strong>. Если думаешь дольше 5 секунд — выбирай тот вариант, на котором споткнулся. Чаще всего именно он самый честный.</div>
+      </div>
+      <div class="rule">
+        <div class="rnum">2</div>
+        <div class="rtext">Не ищи <strong>«правильный» вариант</strong>. Здесь нет хороших и плохих ответов — только твой реальный паттерн. Чем ближе к правде — тем точнее разбор в конце.</div>
+      </div>
+      <div class="rule">
+        <div class="rnum">3</div>
+        <div class="rtext">Если ни один вариант не идеален — <strong>выбери самый близкий</strong>. Архетип проявится через комбинацию ответов, даже если в моменте не узнаёшь себя на 100%.</div>
+      </div>
+    </div>
+    <button class="btn" onclick="startQuiz()">Я готов(а) &nbsp;→</button>
+  </div>
+</div>
+
+<!-- ════════════ MAIN QUIZ ════════════ -->
+<div id="screen-main" class="screen">
+  <div class="qheader">
+    <div class="brand">НЕЙРОПРОДЮСЕР</div>
+    <div class="prog"><span class="cur" id="qnum">00</span> / 13</div>
+  </div>
+  <div class="qwrap" id="qcontent"></div>
+</div>
+
+<!-- ════════════ RESULT ════════════ -->
+<div id="screen-result" class="screen">
+  <div class="qheader">
+    <div class="brand">НЕЙРОПРОДЮСЕР</div>
+    <div class="res-date" id="res-date"></div>
+  </div>
+  <div class="res-wrap" id="res-content"></div>
+  <div class="sub-section">
+    <div class="sub-title">Хочешь выйти из своего паттерна?</div>
+    <p class="sub-text">Каждую неделю в рассылке Нейропродюсера — конкретные инструменты, кейсы и шаги под твой тип работы с ИИ. Без воды.</p>
+    <div class="sub-btns">
+      <a href="https://t.me/neiro_producer" target="_blank" class="btn">Подписаться в Telegram &nbsp;→</a>
+      <a href="https://t.me/neiroproducer_bot" target="_blank" class="btn-outline">Матрица Нейропродюсера &nbsp;→</a>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ ANALYSIS PANEL ════════════ -->
+<div id="apanel">
+  <div class="ap-label">ЧТО ЭТО ЗНАЧИТ</div>
+  <div class="ap-text" id="ap-text"></div>
+  <button class="ap-next" id="ap-next" onclick="nextStep()">Следующий вопрос &nbsp;→</button>
+</div>
+
+<script>
+// ══════════════════════════════════════════
+// DATA
+// ══════════════════════════════════════════
+const INTRO = {
+  label: "ТОЧКА ОТСЧЁТА · ВОПРОС 0",
+  q: "Как часто ты используешь ИИ в работе?",
+  intro: true,
+  answers: [
+    { l:"А", t:"Каждый день — это часть моего рабочего процесса", a:"Регулярность — хороший знак. Но частота — это не то же самое, что уровень. Дальше мы смотрим не на «сколько», а на «как»." },
+    { l:"Б", t:"Несколько раз в неделю — для отдельных задач", a:"Уже больше, чем у большинства. Важнее другое: что именно происходит, когда ты используешь ИИ? Это и покажет твой паттерн." },
+    { l:"В", t:"Периодически — в основном тестирую что-то новое", a:"Тестирование — честный старт. Паттерн формируется не от частоты, а от реакции, когда что-то идёт не так. Именно на это мы и смотрим." },
+    { l:"Г", t:"Редко — пока не понимаю, куда это встроить", a:"Значит, что-то тормозит. Это не незнание инструментов — это конкретный паттерн. Именно за этим ты здесь." }
+  ]
+};
+
+const QS = [
+  {
+    id:1, label:"01 · ТЕКУЩАЯ ТОЧКА",
+    q:"Что больше всего бесит тебя в работе с ИИ?",
+    answers:[
+      {l:"А",t:"Трачу много времени на запрос — а результат всё равно переделываю",arc:"П",a:"Тратить время на запрос и всё равно переделывать — это не проблема инструмента. Это признак высокой планки, которая пока работает против тебя, а не на тебя."},
+      {l:"Б",t:"Постоянно пробую новые инструменты — и ничего не довожу до конца",arc:"К",a:"Всё время кажется, что есть инструмент получше. Это не любопытство — это паттерн: движение без завершения. Коллекционирование вместо результата."},
+      {l:"В",t:"Никогда не уверен(а), насколько можно доверять тому, что выдаёт ИИ",arc:"Ск",a:"Недоверие к результату — рациональная реакция. Пока она не становится привычкой перепроверять всё подряд — даже то, что уже проверено."},
+      {l:"Г",t:"Много изучаю, но никак не перехожу к реальному применению",arc:"Т",a:"Много знаешь — мало применяешь. Разрыв между знанием и действием выглядит как «ещё не готов». Но готовность здесь ни при чём."},
+      {l:"Д",t:"Загораюсь от нового кейса — и так же быстро теряю интерес",arc:"И",a:"Быстро загораться — суперсила. Пока не становится паттерном: загорелся, потерял интерес, переключился. Снова и снова."}
+    ]
+  },
+  {
+    id:2, label:"02 · ТЕКУЩАЯ ТОЧКА",
+    q:"Какая мысль чаще всего останавливает тебя перед тем, как применить ИИ?",
+    answers:[
+      {l:"А",t:"«Надо сначала сформулировать запрос точнее — иначе получу мусор»",arc:"П",a:"«Надо точнее» звучит разумно и профессионально. Именно поэтому так сложно заметить, что это ловушка, а не осторожность."},
+      {l:"Б",t:"«А вдруг есть инструмент, который справится с этим лучше?»",arc:"К",a:"«А вдруг есть лучше» — самый элегантный способ не делать ничего конкретного прямо сейчас. Поиск становится самоцелью."},
+      {l:"В",t:"«Это всё равно придётся перепроверять — стоит ли начинать?»",arc:"Ск",a:"В этой мысли есть правда. Но она же может стать причиной никогда не начать — потому что проверка всегда потребует усилий."},
+      {l:"Г",t:"«Пока не разберусь в теме глубже — рано применять»",arc:"Т",a:"«Не разобрался достаточно» — граница, которая никогда не достигается, потому что постоянно сдвигается чуть дальше."},
+      {l:"Д",t:"«Мне не хочется, чтобы другие знали, что я делаю это через ИИ»",arc:"Н",a:"«Лучше не показывать» — это не осторожность. Это выбор оставаться невидимым. Удобный в моменте, но очень дорогой в перспективе."}
+    ]
+  },
+  {
+    id:3, label:"03 · ТЕКУЩАЯ ТОЧКА",
+    q:"Что ты считаешь своим главным недостатком в работе с ИИ?",
+    answers:[
+      {l:"А",t:"Трачу слишком много времени на «правильный» запрос",arc:"П",a:"Слишком долго собираешься — ты уже это знаешь. Интереснее другое: что именно защищает этот ритуал и зачем он психике."},
+      {l:"Б",t:"Много пробую, но систему так и не выстроил(а)",arc:"К",a:"Много пробуешь, системы нет. Это не лень — это паттерн: новизна как замена завершённости. Движение вместо результата."},
+      {l:"В",t:"Знаю много теоретически — применяю мало",arc:"Т",a:"Знание без применения — это карта без маршрута. Карта хорошая. Пути нет."},
+      {l:"Г",t:"Загораюсь и быстро остываю — нет стабильной практики",arc:"И",a:"Цикл повторяется — и именно поэтому никто не видит результата. Даже ты сам."},
+      {l:"Д",t:"Использую, но предпочитаю держать это при себе",arc:"Н",a:"Используешь, но держишь при себе. Это не скромность — это стратегия уменьшения присутствия. Тихая и дорогостоящая."}
+    ]
+  },
+  {
+    id:4, label:"04 · ПОВЕДЕНИЕ В ПРОЦЕССЕ",
+    q:"Что ты обычно делаешь, когда результат ИИ не совсем то, что нужно?",
+    answers:[
+      {l:"А",t:"Переформулирую запрос снова и снова — пока не станет ближе к идеалу",arc:"П",a:"Каждый раз надеешься, что вот этот запрос — правильный. Это марафон без финиша: идеал не фиксирован, он всегда немного дальше."},
+      {l:"Б",t:"Пробую другой инструмент или другую модель",arc:"К",a:"Так легче — проблема не в тебе, а в инструменте. Но проблема редко в инструменте. Чаще — в том, как ты с ним взаимодействуешь."},
+      {l:"В",t:"Начинаю детально разбираться, где именно ошибка и почему",arc:"Ск",a:"Ценный навык — пока не превращается в ритуал, который занимает больше времени, чем сама задача."},
+      {l:"Г",t:"Теряю интерес и откладываю — вернусь, когда будет настрой",arc:"И",a:"Это не лень. Это способ защититься от повторного разочарования. Но он же мешает накапливать практику и результат."},
+      {l:"Д",t:"Делаю сам(а) — объяснять дольше, чем переделать",arc:"Т",a:"Быстрее для одной задачи — не значит быстрее в системе. Автономность здесь становится ловушкой."}
+    ]
+  },
+  {
+    id:5, label:"05 · ПОВЕДЕНИЕ В ПРОЦЕССЕ",
+    q:"Что чаще всего зависает у тебя в «незавершённом»?",
+    answers:[
+      {l:"А",t:"Задачи, которые начал(а) через ИИ, но «надо ещё чуть доработать»",arc:"П",a:"Тот самый «последний штрих», который откладывается неделями. Ты уже знаешь эту историю — она происходит снова и снова."},
+      {l:"Б",t:"Несколько параллельных экспериментов с инструментами без итога",arc:"К",a:"Каждый был интересным. Ни один не закончен. Интересная коллекция незавершённых начал."},
+      {l:"В",t:"Интересные кейсы применения, до которых не доходят руки",arc:"И",a:"Они по-прежнему там висят. И, скорее всего, их накопилось немало."},
+      {l:"Г",t:"Материалы и курсы, которые изучил(а), но ещё не применил(а)",arc:"Т",a:"Они ждут «правильного момента». Который появится — когда ты начнёшь применять, а не когда доучишься."},
+      {l:"Д",t:"Задачи, результаты которых не хочется показывать коллегам",arc:"Н",a:"Сделано — но спрятано. Это тихий паттерн с большими долгосрочными последствиями."}
+    ]
+  },
+  {
+    id:6, label:"06 · ПОВЕДЕНИЕ В ПРОЦЕССЕ",
+    q:"По какой причине откладываешь задачу, которую мог(ла) бы закрыть через ИИ?",
+    answers:[
+      {l:"А",t:"«Нужно сначала правильно сформулировать — иначе получу плохой результат»",arc:"П",a:"Звучит профессионально и разумно. Именно поэтому с этим так сложно спорить — изнутри и снаружи."},
+      {l:"Б",t:"«Хочу сначала найти инструмент, который лучше подойдёт»",arc:"К",a:"Правильный инструмент нашёлся бы, если бы дело было в нём. Но дело в том, что поиск становится способом не начинать."},
+      {l:"В",t:"«Пока не разберусь в теме достаточно глубоко — не стоит доверять результату»",arc:"Ск",a:"Разумная причина, которая никогда полностью не исчезает. И именно поэтому она так эффективно тормозит."},
+      {l:"Г",t:"«Сейчас нет нужного настроя — это требует вдумчивого подхода»",arc:"И",a:"Честно — и узнаваемо. Именно этот паттерн мешает строить систему, которая работает без «правильного» состояния."},
+      {l:"Д",t:"«Хочу сам(а) разобраться — потом, может, покажу»",arc:"Н",a:"Это не про глубину понимания. Это про то, чтобы не показывать процесс — пока он не будет «достаточно хорош»."}
+    ]
+  },
+  {
+    id:7, label:"07 · ОТНОШЕНИЕ К РЕЗУЛЬТАТУ",
+    q:"Что для тебя самое некомфортное в работе с ИИ?",
+    answers:[
+      {l:"А",t:"Что результат почти никогда не бывает точным с первого раза",arc:"П",a:"Хочется контроля — понятно. Первый черновик всегда несовершенен. Именно это убеждение и держит на месте."},
+      {l:"Б",t:"Что нельзя просто доверять — нужно постоянно перепроверять",arc:"Ск",a:"Доверие — это навык, а не слепота. Его можно откалибровать, не теряя качества и не тратя лишнее время."},
+      {l:"В",t:"Что нужно выбирать один инструмент вместо того, чтобы пробовать всё",arc:"К",a:"Ограничение кажется потерей. Но именно оно даёт глубину — и, в конечном счёте, результат."},
+      {l:"Г",t:"Что коллеги могут решить, что я «схитрил(а)» или сделал(а) не сам(а)",arc:"Н",a:"Страх оценки — самый тихий из всех паттернов. И один из самых устойчивых — потому что он почти невидим."}
+    ]
+  },
+  {
+    id:8, label:"08 · ОТНОШЕНИЕ К РЕЗУЛЬТАТУ",
+    q:"Что страшнее?",
+    answers:[
+      {l:"А",t:"Потратить час на идеальный запрос — и всё равно получить не то",arc:"П",a:"Это не страх провала. Это страх бесполезно потраченного усилия. Тонкое, но важное различие."},
+      {l:"Б",t:"Так и не выстроить систему — продолжать работать хаотично",arc:"К",a:"Ты знаешь, что хаос — это проблема. Но система требует остановиться и выбрать. А выбор — это потеря свободы пробовать всё."},
+      {l:"В",t:"Отдать результат с ошибкой ИИ — и не заметить этого",arc:"Ск",a:"Ответственность за точность — это реальная сила. И одновременно груз, который требует постоянного контроля."},
+      {l:"Г",t:"Снова начать с энтузиазмом — и снова бросить на полпути",arc:"И",a:"Это не страх неудачи. Это страх подтвердить паттерн ещё раз — убедиться, что ничего не изменилось."},
+      {l:"Д",t:"Что узнают, что ты используешь ИИ для этой работы",arc:"Н",a:"Этот страх маленький и тихий. И именно поэтому он так дорого обходится — он работает незаметно."},
+      {l:"Е",t:"Остаться позади тех, кто уже применяет это системно",arc:"Т",a:"Ты знаешь больше — и видишь, что другие уже применяют. Тревога правильная. Направление, в котором она тебя ведёт — стоит проверить."}
+    ]
+  },
+  {
+    id:9, label:"09 · СПОСОБ САМООБМАНА",
+    q:"Какая фраза звучит в голове, когда снова откладываешь?",
+    answers:[
+      {l:"А",t:"«Надо ещё чуть-чуть доточить запрос»",arc:"П",a:"Эта фраза всегда звучит разумно. Всегда. В этом и состоит её сила — и её ловушка."},
+      {l:"Б",t:"«Надо найти правильный инструмент для этой конкретной задачи»",arc:"К",a:"Правильный инструмент нашёлся бы, если бы дело было в нём. Но дело — не в нём."},
+      {l:"В",t:"«Всё равно придётся проверять — лучше сразу сделаю сам(а)»",arc:"Ск",a:"Правда — да. Но сколько раз перепроверять? Есть порог, после которого проверка работает против, а не на тебя."},
+      {l:"Г",t:"«Нужно сначала разобраться в теме глубже»",arc:"Т",a:"Глубже куда? Когда достаточно глубоко? Эта граница никогда не фиксируется сама по себе."},
+      {l:"Д",t:"«Сейчас нет энергии — вернусь к этому позже»",arc:"И",a:"Система не требует энергии каждый раз заново. Именно для этого она и нужна."}
+    ]
+  },
+  {
+    id:10, label:"10 · СПОСОБ САМООБМАНА",
+    q:"Какая причина всегда выглядит «разумной», но на деле тормозит?",
+    answers:[
+      {l:"А",t:"«Сначала нужно составить нормальный шаблон — потом буду применять»",arc:"П",a:"Шаблон появится — через практику. А практика начнётся, когда ты перестанешь ждать готового шаблона."},
+      {l:"Б",t:"«Этот инструмент не совсем подходит — поищу лучше»",arc:"К",a:"Он никогда не подойдёт на 100%. Это не его проблема — это паттерн ожидания идеального инструмента."},
+      {l:"В",t:"«ИИ всё равно ошибается — безопаснее перепроверить всё самому(ой)»",arc:"Ск",a:"Безопаснее — да. И дороже по времени. Важно понять, что ты покупаешь этой проверкой."},
+      {l:"Г",t:"«Сначала пройду ещё один курс — потом уже буду применять»",arc:"Т",a:"Следующий курс не изменит паттерн. Изменит только практика — прямо сейчас, с тем, что уже есть."},
+      {l:"Д",t:"«Хочу сам(а) разобраться — прежде чем кому-то показывать»",arc:"Н",a:"Звучит как профессионализм. Часто является способом никогда ничего не показать — потому что «готово» так и не наступает."}
+    ]
+  },
+  {
+    id:11, label:"11 · РЕАКЦИЯ НА НЕУДАЧУ",
+    q:"Что ты чувствуешь, когда результат ИИ разочаровал?",
+    answers:[
+      {l:"А",t:"Раздражение на себя: плохо сформулировал(а) задачу",arc:"П",a:"Ты берёшь ответственность — и немного слишком много. Перфекционизм в чистом виде: виноват запрос, а не процесс."},
+      {l:"Б",t:"Желание попробовать другой инструмент — этот точно не подходит",arc:"К",a:"Инструмент не подошёл. Следующий подойдёт. Скорее всего — нет, пока паттерн не изменится."},
+      {l:"В",t:"Подтверждение: ИИ всё равно не заменит нормальную экспертизу",arc:"Ск",a:"Иногда это правда. Иногда — способ не двигаться дальше. Важно уметь отличать одно от другого."},
+      {l:"Г",t:"Разочарование — и мысль вернуться к проверенным способам",arc:"Т",a:"Проверенные способы безопаснее — и медленнее. Это обмен, который стоит осознать явно."},
+      {l:"Д",t:"Потеря интереса: «ну и ладно, займусь другим»",arc:"И",a:"Цикл начнётся заново — с другим инструментом или задачей. Это узнаваемо?"},
+      {l:"Е",t:"Тихое облегчение: значит, попытка осталась незамеченной",arc:"Н",a:"Это облегчение — честный сигнал. Оно говорит о том, что видимость ощущается как угроза, а не как возможность."}
+    ]
+  },
+  {
+    id:12, label:"12 · ТВОЯ СИЛА",
+    q:"Что тебе в работе с ИИ даётся легче, чем другим?",
+    answers:[
+      {l:"А",t:"Точно формулировать задачу и замечать, где результат неточный",arc:"П",a:"Реальная сила. Пока она направлена на перфекционирование запроса — она работает против результата. Если развернуть — станет конкурентным преимуществом."},
+      {l:"Б",t:"Быстро находить и осваивать новые инструменты",arc:"К",a:"Конкурентное преимущество. Ему нужна система, чтобы превратиться в реальный результат."},
+      {l:"В",t:"Глубоко анализировать и не пропускать ошибки",arc:"Ск",a:"Критическое мышление — редкость. Это ценнее, чем кажется, если направить его правильно."},
+      {l:"Г",t:"Системно разбираться в теме и видеть общую картину",arc:"Т",a:"Это фундамент. Когда к нему добавится практика — ты выйдешь на другой уровень очень быстро."},
+      {l:"Д",t:"Генерировать неожиданные идеи применения ИИ в своей нише",arc:"И",a:"Твой реальный актив. Ему нужны завершённые кейсы, чтобы стать видимым для других."},
+      {l:"Е",t:"Работать с ИИ органично — так, что это не бросается в глаза",arc:"Н",a:"Это настоящий стиль. Его стоит показать — именно потому, что он нативный, а не наигранный."}
+    ]
+  },
+  {
+    id:13, label:"13 · ГОТОВНОСТЬ К ПЕРЕСТРОЙКЕ",
+    q:"Что тебе было бы проще поменять первым?",
+    answers:[
+      {l:"А",t:"Перестать добиваться идеального результата с первой попытки",arc:"П",a:"Это самый точный диагноз — и самый сложный первый шаг. Именно поэтому его стоит сделать."},
+      {l:"Б",t:"Выбрать 2–3 инструмента и не трогать остальные",arc:"К",a:"Ограничение кажется потерей. На деле это освобождение — для глубины и для результата."},
+      {l:"В",t:"Установить один критерий доверия — и не перепроверять сверх него",arc:"Ск",a:"Один критерий — это не снижение стандартов. Это освобождение от бесконечной проверки."},
+      {l:"Г",t:"Применить то, что уже знаю — хотя бы к одной задаче прямо сейчас",arc:"Т",a:"Не готовиться. Делать. Звучит просто — и именно поэтому так сложно."},
+      {l:"Д",t:"Не бросать на середине — довести один проект до рабочего результата",arc:"И",a:"Один проект до конца — это больше, чем десять начатых. Намного больше."},
+      {l:"Е",t:"Показать коллегам хотя бы один результат, сделанный с ИИ",arc:"Н",a:"Не заявить о себе. Просто не спрятать. Это первый шаг из невидимости."}
+    ]
+  }
+];
+
+const INTS = {
+  3: { top:"Замечаешь?", main:"То, что мешает тебе работать с ИИ эффективно —", sub:"это не отсутствие нужного инструмента. Это всегда что-то более тонкое." },
+  6: { top:"Большинство думают, что им мешает незнание инструментов.", main:"На самом деле мешает паттерн —", sub:"способ, которым ты привык(ла) взаимодействовать с ИИ. Мы подходим к нему ближе." },
+  8: { top:"Каждый твой паттерн — не случайность.", main:"У него есть логика.", sub:"И ты сейчас её увидишь." }
+};
+
+const ARCHETYPES = {
+  П: {
+    name:"Перфекционист",
+    headline:"Ты ждёшь идеального промта,\nкоторого не существует",
+    sub:"Перед каждой задачей ты строишь внутренний экзамен. И часто его проваливаешь ещё до того, как начал.",
+    benefit:"Ты защищаешь себя от плохого результата. Пока запрос не «готов» — тебя нельзя оценить «ниже планки».",
+    cost:"На формулировку уходит больше времени, чем сэкономил бы ИИ. Задачи зависают. Результатов мало.",
+    strength:"Ты замечаешь ошибки там, где другие пропустят. Точность — реальный актив, если направить его на результат, а не на запрос.",
+    scales:[{n:"Перфекционизм",v:96},{n:"Потребность в контроле",v:89},{n:"Страх ошибки",v:74}],
+    exit:"Принять, что первый черновик — это инструмент, а не результат. ИИ не заменяет твоё мышление. Он ускоряет его."
+  },
+  К: {
+    name:"Коллекционер",
+    headline:"Ты собираешь инструменты\nвместо результатов",
+    sub:"Каждый новый инструмент кажется тем самым — правильным, нужным. И каждый раз это не совсем так.",
+    benefit:"Исследование новых инструментов даёт ощущение прогресса без риска ошибки в реальной задаче.",
+    cost:"Ни один инструмент не освоен глубоко. Нет системы. Нет результатов, которые можно показать.",
+    strength:"Ты первым замечаешь нужный инструмент. Скорость освоения нового — реальное преимущество, если добавить систему.",
+    scales:[{n:"Любовь к новизне",v:93},{n:"Системность",v:24},{n:"Завершённость проектов",v:19}],
+    exit:"Выбрать 2–3 инструмента. Не трогать остальное 60 дней. Построить первую рабочую систему."
+  },
+  Ск: {
+    name:"Скептик",
+    headline:"Ты перепроверяешь ИИ чаще,\nчем он тебя подводит",
+    sub:"Недоверие — умная реакция. Пока не становится ритуалом, который съедает всю выгоду от использования.",
+    benefit:"Ты сохраняешь ощущение экспертности: «я не просто доверяю машине — я контролирую результат».",
+    cost:"На проверку уходит столько же времени, сколько ты сэкономил. Скорость не растёт. Уровень — тоже.",
+    strength:"Критический взгляд — ценнее, чем кажется. Ты замечаешь то, что другие пропускают. Это можно монетизировать.",
+    scales:[{n:"Критическое мышление",v:94},{n:"Доверие к ИИ",v:22},{n:"Скорость работы",v:36}],
+    exit:"Выработать один чёткий критерий доверия — и не перепроверять сверх него. Это не снижение стандартов. Это освобождение."
+  },
+  Т: {
+    name:"Теоретик",
+    headline:"Ты знаешь про ИИ больше всех —\nи применяешь меньше всех",
+    sub:"Твои знания реальны. Разрыв между ними и реальным применением — тоже.",
+    benefit:"Позиция «я ещё изучаю» защищает от риска сделать что-то неправильно. Это умно. И очень удобно.",
+    cost:"Знания не конвертируются в результат. Ты не видишь своего реального уровня — потому что он не проверен в деле.",
+    strength:"Системное понимание — фундамент. Когда ты начнёшь применять, выйдешь на другой уровень быстро.",
+    scales:[{n:"Знания об ИИ",v:91},{n:"Практическое применение",v:29},{n:"Уверенность в результате",v:43}],
+    exit:"Взять одну реальную задачу — и закрыть её через ИИ прямо сейчас. Не готовиться. Делать."
+  },
+  И: {
+    name:"Искра",
+    headline:"Ты зажигаешься быстрее всех —\nи гаснешь так же",
+    sub:"Энтузиазм настоящий. Проблема — не в нём. Проблема в том, что следует после.",
+    benefit:"Постоянная новизна создаёт ощущение движения. Скучно не бывает. Системы тоже.",
+    cost:"Ни один кейс не закончен. Твои идеи о применении ИИ лучше, чем у большинства. Но никто этого не видит.",
+    strength:"Генерируешь идеи применения, которых другие не замечают. Это стратегическая ценность — если оформить в кейсы.",
+    scales:[{n:"Энтузиазм и энергия",v:97},{n:"Завершённость проектов",v:18},{n:"Стабильная практика",v:21}],
+    exit:"Один проект — одна цель — один месяц без новых инструментов. Это твой вызов и следующий шаг."
+  },
+  Н: {
+    name:"Невидимка",
+    headline:"Ты используешь ИИ так,\nчтобы никто не заметил",
+    sub:"Ты не скрываешь. Ты просто всё время уменьшаешь своё присутствие до безопасного уровня.",
+    benefit:"Ты избегаешь оценки, осуждения, ощущения «я схитрил». Это снижает риск — и одновременно видимость.",
+    cost:"Твой реальный уровень остаётся невидимым — даже для тебя самого. Ты не знаешь, насколько ты хорош.",
+    strength:"Тонкость, чувство меры, органичность. Если перестать уменьшать присутствие — это станет узнаваемым стилем.",
+    scales:[{n:"Страх оценки",v:89},{n:"Реальный уровень",v:68},{n:"Публичная видимость",v:14}],
+    exit:"Показать один результат — коллеге, аудитории, кому угодно. Не «заявить о себе». Просто не спрятать."
+  }
+};
+
+// ══════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════
+let step = 0;      // 0=intro, 1–13=questions
+let scores = {П:0,К:0,Ск:0,Т:0,И:0,Н:0};
+let pendingNext = null;
+let waitingForIntermediate = false;
+
+// ══════════════════════════════════════════
+// SCREEN TRANSITIONS
+// ══════════════════════════════════════════
+function showScreen(id){
+  const cur = document.querySelector('.screen.active');
+  if(cur){
+    cur.style.opacity='0';
+    setTimeout(()=>{
+      cur.classList.remove('active','visible');
+      cur.style.display='none';
+      const nxt = document.getElementById(id);
+      nxt.classList.add('active');
+      nxt.style.display='flex';
+      nxt.style.opacity='0';
+      setTimeout(()=>{nxt.style.opacity='1';nxt.classList.add('visible');},40);
+    },320);
+  } else {
+    const nxt = document.getElementById(id);
+    nxt.classList.add('active');
+    nxt.style.display='flex';
+    setTimeout(()=>{nxt.style.opacity='1';nxt.classList.add('visible');},40);
+  }
+}
+
+// ══════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════
+function goRules(){showScreen('screen-rules')}
+
+function startQuiz(){
+  showScreen('screen-main');
+  setTimeout(()=>renderStep(),350);
+}
+
+function renderStep(){
+  hidePanel();
+  if(step===0){
+    renderQuestion(INTRO, 0);
+  } else if(step>=1 && step<=13){
+    renderQuestion(QS[step-1], step);
+  } else {
+    showResult();
+  }
+}
+
+function renderQuestion(data, idx){
+  document.getElementById('qnum').textContent = String(idx).padStart(2,'0');
+  const container = document.getElementById('qcontent');
+  const answers = data.answers.map((a,i)=>`
+    <div class="aitem" id="ans-${i}" onclick="selectAnswer(${i})">
+      <div class="aletter">${a.l}</div>
+      <div class="atext">${a.t}</div>
+    </div>
+  `).join('');
+  container.innerHTML = `
+    <div class="qlabel">${data.label||'ВОПРОС'}</div>
+    <div class="qtitle">${data.q}</div>
+    <div class="alist">${answers}</div>
+  `;
+  // scroll to top
+  container.scrollTop=0;
+  window.scrollTo(0,0);
+}
+
+function selectAnswer(idx){
+  const data = step===0 ? INTRO : QS[step-1];
+  const ans = data.answers[idx];
+  // lock all items
+  document.querySelectorAll('.aitem').forEach((el,i)=>{
+    if(i===idx) el.classList.add('sel');
+    else el.classList.add('locked');
+  });
+  // score
+  if(ans.arc && scores[ans.arc]!==undefined) scores[ans.arc]++;
+  // determine next
+  pendingNext = ()=>{
+    step++;
+    if(INTS[step-1]){
+      renderIntermediate(INTS[step-1]);
+    } else {
+      renderStep();
+    }
+  };
+  // update panel next button label
+  const isLast = step===13;
+  document.getElementById('ap-next').textContent = isLast ? 'Смотреть результат  →' : 'Следующий вопрос  →';
+  showPanel(ans.a);
+}
+
+function showPanel(text){
+  document.getElementById('ap-text').textContent = text;
+  document.getElementById('apanel').classList.add('show');
+}
+function hidePanel(){
+  document.getElementById('apanel').classList.remove('show');
+}
+
+function nextStep(){
+  hidePanel();
+  if(pendingNext){
+    const fn = pendingNext;
+    pendingNext = null;
+    setTimeout(fn, 300);
+  }
+}
+
+function renderIntermediate(data){
+  const container = document.getElementById('qcontent');
+  document.getElementById('qnum').textContent = '··';
+  container.innerHTML = `
+    <div class="inter-wrap">
+      <div class="inter-top">${data.top}</div>
+      <div class="inter-main"><b>${data.main}</b></div>
+      <div class="inter-sub">${data.sub}</div>
+      <button class="inter-go" onclick="afterIntermediate()">Дальше &nbsp;→</button>
+    </div>
+  `;
+  window.scrollTo(0,0);
+}
+
+function afterIntermediate(){
+  renderStep();
+}
+
+// ══════════════════════════════════════════
+// RESULT
+// ══════════════════════════════════════════
+function showResult(){
+  // determine winner
+  let winner = 'П';
+  let max = -1;
+  for(const [k,v] of Object.entries(scores)){
+    if(v>max){max=v;winner=k;}
+  }
+  const arch = ARCHETYPES[winner];
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'});
+  document.getElementById('res-date').textContent = `ДИАГНОСТИКА · ${dateStr}`;
+
+  const scalesHTML = arch.scales.map(s=>`
+    <div class="sc-row">
+      <div class="sc-name">${s.n}</div>
+      <div class="sc-bg"><div class="sc-fill" data-val="${s.v}"></div></div>
+      <div class="sc-val">${s.v}%</div>
+    </div>
+  `).join('');
+
+  document.getElementById('res-content').innerHTML = `
+    <div class="arch-num">АРХЕТИП · ${arch.name.toUpperCase()}</div>
+    <div class="arch-headline">${arch.headline.replace('\n','<br>')}</div>
+    <div class="arch-sub">${arch.sub}</div>
+    <div class="three">
+      <div class="pcard">
+        <div class="pc-label">СКРЫТАЯ ВЫГОДА</div>
+        <div class="pc-text">${arch.benefit}</div>
+      </div>
+      <div class="pcard">
+        <div class="pc-label">ЦЕНА</div>
+        <div class="pc-text">${arch.cost}</div>
+      </div>
+      <div class="pcard">
+        <div class="pc-label">ТВОЯ СИЛА</div>
+        <div class="pc-text">${arch.strength}</div>
+      </div>
+    </div>
+    <div class="scales">
+      <div class="sc-label">ШКАЛЫ, ПО КОТОРЫМ ТЫ ВЫШЕЛ В МАКСИМУМ</div>
+      ${scalesHTML}
+    </div>
+    <div class="exit-box">
+      <div class="exit-label">ВЫХОД ДЛЯ ТЕБЯ</div>
+      <div class="exit-text">${arch.exit}</div>
+    </div>
+  `;
+
+  showScreen('screen-result');
+
+  // animate scale bars after screen shows
+  setTimeout(()=>{
+    document.querySelectorAll('.sc-fill').forEach(el=>{
+      el.style.width = el.dataset.val + '%';
+    });
+  }, 600);
+}
+
+// ══════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════
+// Set start screen visible immediately
+document.addEventListener('DOMContentLoaded',()=>{
+  const start = document.getElementById('screen-start');
+  start.style.display='flex';
+  start.style.opacity='0';
+  setTimeout(()=>start.style.opacity='1',80);
+});
+</script>
+</body>
+</html>
