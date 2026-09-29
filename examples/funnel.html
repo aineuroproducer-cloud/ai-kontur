@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Пример: прототип воронки после теста</title>
+<style>
+:root{
+  color-scheme: light;
+  --bg:#FCFAF6; --surface:#FFFFFF;
+  --rose:#E7B7B5; --rose-bg:#FBF1EF; --rose-line:#E4D5D2; --rose-deep:#C97B84;
+  --bordeaux:#6E2C4D; --bordeaux-dark:#4E1E37;
+  --sage:#6E8E7B; --sage-bg:#E9F0EB;
+  --ink:#3A2E33; --muted:#6A5A60; --gold:#C29A4B;
+  --stop-bg:#FBEDEF;
+  --radius:14px;
+  --shadow:0 1px 2px rgba(78,30,55,.05), 0 8px 24px rgba(78,30,55,.07);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  font-size:16px; line-height:1.55; -webkit-font-smoothing:antialiased;
+}
+.flag{background:var(--bordeaux-dark);color:#fff;font-size:12.5px;text-align:center;padding:7px 16px;line-height:1.4}
+.wrap{max-width:1180px;margin:0 auto;padding:0 16px 70px}
+
+header.top{padding:26px 0 6px}
+.eyebrow{font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--sage);font-weight:700}
+h1{font-size:25px;line-height:1.25;margin:8px 0 6px;color:var(--bordeaux-dark);letter-spacing:-.01em}
+.sub{color:var(--muted);font-size:15px;margin:0 0 20px;max-width:64ch}
+
+.branches{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.bch{
+  border:1.5px solid var(--rose-line);background:var(--surface);color:var(--ink);
+  border-radius:11px;padding:11px 15px;font:inherit;font-size:14.5px;cursor:pointer;
+  transition:all .16s ease;text-align:left;line-height:1.3;
+}
+.bch b{display:block;font-weight:650;margin-bottom:2px}
+.bch span{font-size:12.5px;color:var(--muted)}
+.bch:hover{border-color:var(--rose);background:var(--rose-bg)}
+.bch.on{border-color:var(--bordeaux);background:var(--rose-bg);box-shadow:inset 3px 0 0 var(--bordeaux)}
+.bch.on span{color:var(--bordeaux)}
+
+.rail{display:flex;gap:4px;margin:18px 0 6px;flex-wrap:wrap}
+.rail i{height:5px;flex:1;min-width:14px;border-radius:3px;background:var(--rose-line);transition:background .25s}
+.rail i.done{background:var(--rose-deep)}
+.rail i.now{background:var(--bordeaux)}
+.stepline{font-size:13px;color:var(--muted);margin-bottom:18px}
+
+.cols{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:22px;align-items:start}
+
+.phone{
+  background:var(--surface);border:1px solid var(--rose-line);border-radius:18px;
+  box-shadow:var(--shadow);overflow:hidden;
+}
+.phone-bar{
+  background:var(--bordeaux);color:#fff;padding:12px 18px;font-size:14px;
+  display:flex;align-items:center;gap:10px;
+}
+.dot{width:26px;height:26px;border-radius:50%;flex:none;
+  background:radial-gradient(circle at 32% 30%, var(--rose) 0%, var(--rose-deep) 55%, #fff0 100%);}
+.phone-bar b{font-weight:600;font-size:14.5px}
+.phone-bar em{font-style:normal;opacity:.75;font-size:12px;display:block;margin-top:1px}
+.stream{padding:18px;min-height:320px;background:var(--bg)}
+
+.daytag{text-align:center;font-size:12px;color:var(--muted);margin:16px 0 12px;letter-spacing:.03em}
+.daytag:first-child{margin-top:0}
+
+.msg{max-width:88%;margin-bottom:10px;animation:rise .28s ease both}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.msg .body{
+  background:var(--surface);border:1px solid var(--rose-line);border-radius:4px 14px 14px 14px;
+  padding:13px 16px;font-size:15.5px;line-height:1.55;
+}
+.msg.me{margin-left:auto}
+.msg.me .body{background:var(--rose-bg);border-color:var(--rose);border-radius:14px 4px 14px 14px}
+.msg .body p{margin:0 0 10px}
+.msg .body p:last-child{margin-bottom:0}
+.msg .body strong{color:var(--bordeaux-dark)}
+
+.doc{border-left:4px solid var(--rose-deep);background:var(--rose-bg);border-radius:0 12px 12px 0;padding:0}
+.doc-h{padding:14px 18px 2px;font-weight:650;color:var(--bordeaux-dark);font-size:15.5px}
+.doc-b{padding:0 18px 16px;font-size:14.5px;line-height:1.6;max-height:300px;overflow:auto}
+.doc-b h4{margin:15px 0 5px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--bordeaux)}
+.doc-b p{margin:0 0 9px}
+.doc-b ol,.doc-b ul{margin:0 0 9px;padding-left:20px}
+.doc-b li{margin-bottom:5px}
+
+.screen{border:1.5px solid var(--rose-line);background:var(--surface);border-radius:12px;padding:18px;margin-bottom:10px}
+.screen .tag{display:inline-block;background:var(--sage-bg);color:var(--sage);font-size:11px;letter-spacing:.11em;
+  text-transform:uppercase;font-weight:700;padding:5px 11px;border-radius:99px;margin-bottom:10px}
+.screen h3{margin:0 0 10px;font-size:20px;color:var(--bordeaux-dark);line-height:1.25}
+.screen .fake-btn{display:block;text-align:center;background:var(--bordeaux);color:#fff;border-radius:10px;
+  padding:13px;font-weight:650;margin-top:14px;font-size:15.5px}
+
+.alert{border-radius:12px;padding:14px 16px;margin:0 0 10px;font-size:14.5px;line-height:1.5}
+.alert b{display:block;margin-bottom:4px;font-size:14px}
+.alert.warn{background:#FDF3E7;border:1.5px solid var(--gold);color:#6b4e12}
+.alert.stop{background:var(--stop-bg);border:1.5px solid var(--rose-deep);color:var(--bordeaux-dark)}
+
+.choices{display:flex;gap:8px;flex-wrap:wrap;margin:4px 0 2px;justify-content:flex-end}
+.choice{border:1.5px solid var(--rose);background:var(--surface);color:var(--bordeaux);border-radius:11px;
+  padding:10px 14px;font:inherit;font-size:14.5px;cursor:pointer;transition:all .15s}
+.choice:hover{background:var(--rose-bg)}
+.choice.picked{background:var(--bordeaux);color:#fff;border-color:var(--bordeaux)}
+
+.forks{display:grid;gap:10px;margin-top:4px}
+.fork{border:1.5px solid var(--rose-line);border-radius:12px;padding:14px 16px;background:var(--surface)}
+.fork h5{margin:0 0 6px;font-size:14px;color:var(--bordeaux-dark)}
+.fork p{margin:0;font-size:14.5px}
+.fork.good{border-color:#D3E0D6;background:var(--sage-bg)}
+.fork.sell{border-color:var(--rose);background:var(--rose-bg)}
+
+.nav{display:flex;gap:10px;align-items:center;padding:14px 18px;border-top:1px solid var(--rose-line);background:var(--surface)}
+.btn{flex:1;border:0;cursor:pointer;font:inherit;font-weight:650;background:var(--bordeaux);color:#fff;
+  padding:14px;border-radius:11px;font-size:16px;transition:background .16s,transform .1s}
+.btn:hover{background:var(--bordeaux-dark)}
+.btn:active{transform:translateY(1px)}
+.btn:disabled{background:var(--rose-line);color:#A2938F;cursor:not-allowed;transform:none}
+.back{background:none;border:0;cursor:pointer;font:inherit;font-size:14.5px;color:var(--muted);
+  padding:12px 6px;text-decoration:underline;text-underline-offset:3px}
+.back:hover{color:var(--bordeaux)}
+
+aside{position:sticky;top:16px;display:grid;gap:12px}
+.panel{background:var(--surface);border:1px solid var(--rose-line);border-radius:var(--radius);padding:16px 17px}
+.panel h4{margin:0 0 11px;font-size:11.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--bordeaux)}
+.kv{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-bottom:1px solid #F3ECEA;font-size:13.5px}
+.kv:last-child{border-bottom:0}
+.kv span:first-child{color:var(--muted);font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px}
+.kv span:last-child{text-align:right;font-weight:600}
+.panel p{margin:0;font-size:14px;color:var(--ink)}
+.panel .who{font-size:14px}
+.panel .who b{color:var(--bordeaux-dark)}
+.note{background:var(--sage-bg);border:1px solid #D3E0D6;border-radius:var(--radius);padding:14px 16px;font-size:13.5px;line-height:1.5}
+.note b{display:block;margin-bottom:4px;color:var(--sage)}
+
+footer.legend{margin-top:26px;border-top:1px solid var(--rose-line);padding-top:16px;font-size:13.5px;color:var(--muted);line-height:1.6}
+footer.legend b{color:var(--bordeaux-dark)}
+
+@media (max-width:900px){
+  .cols{grid-template-columns:1fr}
+  aside{position:static}
+}
+@media (max-width:520px){
+  body{font-size:15.5px}
+  .wrap{padding:0 14px 50px}
+  h1{font-size:21px}
+  .msg{max-width:96%}
+}
+</style>
+</head>
+<body>
+
+<div class="flag">Пример из практики: прототип воронки для онлайн-школы. Названия изменены. Тексты — черновик до медицинской вычитки, это не рекомендации.</div>
+
+<div class="wrap">
+
+  <header class="top">
+    <div class="eyebrow">Женское здоровье 40+ · прототип воронки</div>
+    <h1>Путь женщины после теста «Карта сигналов»</h1>
+    <p class="sub">Слева — что видит она. Справа — что в этот момент происходит в системе и кто за это отвечает.
+    Профиль для показа: «Опора и комфорт» (тазовое дно). Переключите ветку, чтобы увидеть, как меняется маршрут.</p>
+
+    <div class="branches" id="branches"></div>
+
+    <div class="rail" id="rail"></div>
+    <div class="stepline" id="stepline"></div>
+  </header>
+
+  <div class="cols">
+    <main class="phone">
+      <div class="phone-bar">
+        <div class="dot"></div>
+        <div><b>Школа · помощник</b><em id="chan">бот школы</em></div>
+      </div>
+      <div class="stream" id="stream"></div>
+      <div class="nav">
+        <button class="back" id="back">Назад</button>
+        <button class="btn" id="next">Дальше</button>
+      </div>
+    </main>
+
+    <aside>
+      <div class="panel">
+        <h4>Что уходит в систему</h4>
+        <div id="crm"></div>
+      </div>
+      <div class="panel">
+        <h4>Кто отвечает за этот шаг</h4>
+        <p class="who" id="who"></p>
+      </div>
+      <div class="note" id="note"></div>
+    </aside>
+  </div>
+
+  <footer class="legend">
+    <b>Что здесь настоящее, а что заглушка.</b> Настоящие: логика ветвления, поля CRM, структура карты и тексты профиля «Опора и комфорт».
+    Заглушки: названия и цены продуктов, адреса ботов, формат и стоимость личного разбора. Два других профиля —
+    «Переход и ресурс» и «Система и движение» — собираются по этому же скелету после утверждения текстов.
+  </footer>
+
+</div>
+
+<script>
+(function(){
+"use strict";
+
+var CARD_NORMAL =
+  '<h4>Что у вас складывается</h4>'+
+  '<p>Вы отметили то, что женщины обычно не обсуждают вслух. Из-за этого кажется, что так только у вас. Это не так — и это не та плата за возраст, которую нужно молча принять.</p>'+
+  '<h4>Почему это идёт вместе</h4>'+
+  '<p>Такие изменения после 40 очень распространены, и при этом они не обязательное следствие возраста или родов. Важно другое: универсальное «делайте упражнения Кегеля» подходит не каждой ситуации. При одних состояниях мышцы нужно учить сокращаться, при других — наоборот расслабляться. Если угадать неправильно, станет хуже. Поэтому начинать стоит не с силы, а с дыхания: оно безопасно в обоих случаях.</p>'+
+  '<h4>Ваш коридор</h4>'+
+  '<p><b>Можно уже сегодня:</b> диафрагмальное дыхание, ходьба в комфортном темпе, режим отхода ко сну.</p>'+
+  '<p><b>С осторожностью:</b> упражнения на пресс, подъём тяжестей, прыжки и бег — пока вы не знаете свою ситуацию с мышцами.</p>'+
+  '<p><b>Сначала к врачу, не откладывая:</b> кровотечение после года без менструаций, боль, новый быстро нарастающий симптом.</p>'+
+  '<p><b>Чего в этом формате подобрать нельзя:</b> какие именно упражнения нужны вам. Это определяется на осмотре, а не по ответам в тесте.</p>'+
+  '<h4>Первые 14 дней</h4>'+
+  '<ol><li>Вечером лечь на спину, согнуть колени, ладонь на живот. Дышать 5 минут так, чтобы поднимался живот, а не грудная клетка. Ничего не сжимать и не втягивать.</li>'+
+  '<li>Выбрать время отбоя и ложиться в одно и то же время, даже если заснуть удаётся не сразу.</li></ol>'+
+  '<p>Всё. Больше ничего не добавляйте — сейчас важнее регулярность, чем объём.</p>'+
+  '<h4>Три маркера</h4>'+
+  '<ol><li>Меньше ли срочных позывов днём.</li><li>Появилось ли ощущение опоры внизу живота — хотя бы иногда.</li><li>Реже ли вы просыпаетесь ночью.</li></ol>'+
+  '<p>Запишите сегодня, как обстоит дело с каждым. Через две недели сравните.</p>'+
+  '<h4>Важно</h4>'+
+  '<p>Это образовательный материал для самонаблюдения. Он не устанавливает диагноз, не назначает лечение и не заменяет консультацию врача.</p>';
+
+var CARD_CAUTION =
+  '<h4>Почему ваша карта в осторожной редакции</h4>'+
+  '<p>Вы отметили проблемы со спиной. Это не запрет на движение — это причина не давать вам универсальный комплекс. Часть действий из обычной карты здесь заменена.</p>'+
+  '<h4>Ваш коридор</h4>'+
+  '<p><b>Можно уже сегодня:</b> дыхание лёжа, ходьба в комфортном темпе, режим сна.</p>'+
+  '<p><b>Пока не делаем совсем:</b> упражнения на пресс, планка, подъём тяжестей, прыжки, любые «универсальные комплексы для тазового дна» из интернета.</p>'+
+  '<p><b>Обсудить с лечащим врачом до начала:</b> можно ли вам нагрузку на спину и какие положения для вас безопасны.</p>'+
+  '<h4>Первые 14 дней</h4>'+
+  '<ol><li>Дыхание лёжа с согнутыми коленями, 5 минут. Если в этом положении спине некомфортно — подложите подушку под колени.</li>'+
+  '<li>Ходьба 10 минут в спокойном темпе.</li>'+
+  '<li>Одно и то же время отбоя.</li></ol>'+
+  '<p>Силовых упражнений в вашей карте нет намеренно. Они появятся только после того, как станет понятно, что вам можно.</p>'+
+  '<h4>Три маркера</h4>'+
+  '<ol><li>Меньше ли срочных позывов днём.</li><li>Легче ли даётся ходьба.</li><li>Реже ли вы просыпаетесь ночью.</li></ol>'+
+  '<h4>Важно</h4>'+
+  '<p>Это образовательный материал для самонаблюдения. Он не устанавливает диагноз и не заменяет консультацию врача.</p>';
+
+var CARD_STOP =
+  '<h4>Как подготовиться к приёму</h4>'+
+  '<p>Запишите за 3–5 дней до визита:</p>'+
+  '<ol><li>Когда симптом появился впервые и как менялся.</li><li>Как часто и в какое время суток.</li><li>Что усиливает и что облегчает.</li><li>Какие лекарства и добавки вы принимаете — списком.</li><li>Была ли гормональная терапия и когда.</li></ol>'+
+  '<h4>Что спросить у врача</h4>'+
+  '<ol><li>Какие обследования нужны именно в моём случае и в каком порядке.</li><li>Что из моих симптомов требует контроля по срокам.</li><li>Можно ли мне физическую нагрузку и какая именно противопоказана.</li></ol>'+
+  '<p>Этот список — не замена приёму. Он нужен, чтобы за 15 минут в кабинете вы успели сказать главное.</p>';
+
+var BRANCHES = {
+  normal: {
+    label:'Обычная ветка',
+    hint:'нет ограничений, стоп-сигналов нет',
+    steps:[
+      { day:'Сайт · сразу после теста', chan:'страница результата',
+        who:'<b>Техспециалист</b> — страница и передача меток. <b>Эксперт</b> — утверждает формулировки.',
+        note:'Контакт мы ещё не получили. Он появится на следующем шаге — в момент перехода в мессенджер.',
+        crm:[['PROFILE','PELVIC'],['GROUP','Б · опора и комфорт'],['EDITION','обычная'],['SAFETY','no'],['AGE_STAGE','46–55'],['IMPACT','2']],
+        blocks:[
+          {t:'screen', tag:'Ваш профиль', h:'Опора и комфорт',
+           p:'По вашим ответам на первый план вышло то, что женщины обычно не обсуждают вслух. Это не та плата за возраст, которую нужно молча принять.',
+           extra:'<p style="margin:10px 0 0;font-size:14.5px"><b>Что можно сделать уже сегодня:</b> 5 минут дыхания лёжа. Ничего не сжимая и не втягивая.</p>',
+           btn:'Получить полный разбор в Telegram'}
+        ]},
+
+      { day:'День 0 · через минуту после перехода', chan:'бот · первое касание',
+        who:'<b>Техспециалист</b> — склейка ответов с контактом. <b>Копирайтер</b> — текст выдачи.',
+        note:'Вот здесь мы получаем контакт. Не формой до результата, а входом в бота — человек уже увидел пользу и знает, за чем идёт.',
+        crm:[['CONTACT','получен'],['CHANNEL','telegram'],['CARD_SENT','да'],['RECHECK_DATE','+14 дней']],
+        blocks:[
+          {t:'bot', p:['Здравствуйте! Это помощник школы.','Ваш разбор готов — он ниже. Читается за четыре минуты. Практики в нём подобраны с учётом того, что вы отметили.']},
+          {t:'doc', h:'Первые 14 дней. Ваш коридор.', b:CARD_NORMAL},
+          {t:'me', p:['Спасибо, прочитаю']}
+        ]},
+
+      { day:'День 1', chan:'бот · прогрев',
+        who:'<b>Копирайтер</b> — текст. <b>Эксперт</b> — подтверждает медицинскую часть.',
+        note:'Задача дня — не продать, а объяснить, почему её прошлые попытки не сработали. Это снимает вину и готовит к тому, что тактику надо подбирать.',
+        crm:[['TOUCH_1','доставлено'],['OPENED','да']],
+        blocks:[
+          {t:'bot', p:['Самая частая ошибка в вашей теме — начать с упражнений Кегеля. Их советуют всюду, и звучит логично: мышца слабая, надо качать.','Но при части состояний мышцы тазового дна не слабые, а наоборот — перенапряжённые. Если такую мышцу ещё и качать, станет хуже, а не лучше. Женщина делает всё правильно, результата нет, и она решает, что дело в ней.','Поэтому в вашей карте первым стоит дыхание, а не сжатие. Дыхание безопасно в обоих случаях.']},
+          {t:'me', p:['Я как раз делала Кегеля полгода без толку']}
+        ]},
+
+      { day:'День 2', chan:'бот · прогрев',
+        who:'<b>Эксперт</b> — практика и формулировки. <b>Копирайтер</b> — подача.',
+        note:'День действия. Чем раньше женщина что-то сделает руками, тем выше шанс, что она дойдёт до дня 14.',
+        crm:[['TOUCH_2','доставлено'],['PRACTICE_CONFIRMED','да']],
+        blocks:[
+          {t:'bot', p:['Проверим, что дыхание идёт правильно. Положите одну ладонь на живот, вторую на рёбра. На вдохе должна подниматься нижняя ладонь, верхняя — почти нет.','Если поднимается грудь — вдохните медленнее и тише. Это не про объём воздуха, а про направление.','И отметьте сегодня три маркера из карты. Одной строкой, в заметках телефона. Через двенадцать дней они вам понадобятся.']},
+          {t:'me', p:['Отметила']}
+        ]},
+
+      { day:'День 3', chan:'бот · прогрев',
+        who:'<b>Копирайтер</b>. <b>Юрист</b> — проверяет, что нет обещаний результата.',
+        note:'Здесь в прошлой воронке стояли истории излечения с цифрами. Заменено на диапазон наблюдений без гарантий — так требует и закон о рекламе, и матрица маршрутизации.',
+        crm:[['TOUCH_3','доставлено']],
+        blocks:[
+          {t:'bot', p:['Что обычно меняется за две недели — и чего ждать не стоит.','У части женщин первым уходит ночное просыпание. У части — днём становится меньше срочных позывов. У части за две недели не меняется ничего, и это тоже информация: значит, коридор подобран не под их случай.','Мы специально не обещаем вам конкретный результат к конкретной дате. Вместо этого дали три маркера — по ним вы увидите свою картину сами.']}
+        ]},
+
+      { day:'День 4', chan:'бот · прогрев',
+        who:'<b>Копирайтер</b>.',
+        note:'День возражений. Два главных: «я уже всё пробовала» и «у меня нет времени».',
+        crm:[['TOUCH_4','доставлено']],
+        blocks:[
+          {t:'bot', p:['«Я уже всё пробовала» — самая частая фраза в этой теме. И почти всегда за ней стоит не лень, а то, что пробовали вслепую: комплекс из интернета, без понимания, что именно у вас происходит.','«У меня нет времени» — это про десять минут лёжа перед сном. Не про спортзал.','Если за две недели маркеры сдвинутся — вам и не нужно будет ничего больше. Так тоже бывает, и это хороший исход.']},
+          {t:'me', p:['Посмотрим']}
+        ]},
+
+      { day:'День 5', chan:'бот · оффер',
+        who:'<b>Маркетолог</b> — привязывает один реальный продукт. <b>Владелец</b> — утверждает, какой именно.',
+        note:'Один продукт, а не каталог. По матрице для этого профиля следующий шаг — тематический продукт после проверки безопасности.',
+        crm:[['OFFER_NEXT','тематический модуль'],['OFFER_SHOWN','день 5']],
+        blocks:[
+          {t:'bot', p:['Если хотите пойти дальше дыхания — есть тематический модуль по тазовому дну: разбор того, как понять свой случай, и последовательность действий на месяц.','<i>[название, цена и ссылка — заглушка, подставляется после решения]</i>','И честная граница: если у вас одна тема и за две недели маркеры сдвинулись — модуль вам не нужен, продолжайте сами.']}
+        ]},
+
+      { day:'День 14 · возврат', chan:'бот · точка правды',
+        who:'<b>Техспециалист</b> — отложенное касание. <b>Копирайтер</b> — два сообщения и развилка.',
+        note:'Это и есть механика продажи. Не «купи», а «проверь себя». Ответ женщины одновременно и её польза, и наш сегмент.',
+        crm:[['RECHECK','запрошен'],['STATUS','ожидание ответа']],
+        blocks:[
+          {t:'bot', p:['Две недели прошли. Достаньте свою запись и сравните три маркера с тем, что сегодня.','Что получилось?']},
+          {t:'choice', opts:['Стало лучше','Частично','Ничего не изменилось']}
+        ]},
+
+      { day:'Развилка', chan:'бот · следующий шаг',
+        who:'<b>Маркетолог</b> — продукт под каждый исход. <b>Владелец</b> — решает, есть ли в воронке личный разбор.',
+        note:'Три ответа — три разных следующих шага. Ни один из них не «купи то же самое ещё раз».',
+        crm:[['RECHECK_RESULT','better / partial / none'],['NEXT','по исходу']],
+        blocks:[
+          {t:'forks', items:[
+            {cls:'good', h:'Стало лучше', p:'Закрепляем. Предлагаем женский трек клуба — регулярность, а не новый интенсив. Продажа мягкая, человек уже доверяет.'},
+            {cls:'', h:'Частично', p:'Показываем, что сдвинулось, а что нет, и почему так бывает. Предлагаем тематический модуль как следующий шаг.'},
+            {cls:'sell', h:'Ничего не изменилось', p:'Вот здесь личный разбор с экспертом уместен и не выглядит впариванием: женщина сама убедилась, что общего коридора мало. «Нужна не другая мотивация, а понимание, какие мышцы в вашем случае расслаблять, а какие укреплять».'}
+          ]}
+        ]}
+    ]
+  },
+
+  caution: {
+    label:'Осторожная ветка',
+    hint:'отмечены ограничения — спина, давление, операции',
+    steps:[
+      { day:'Сайт · сразу после теста', chan:'страница результата',
+        who:'<b>Техспециалист</b> — переключение редакции по ответу об ограничениях.',
+        note:'Единственное, что делает эта ветка — не даёт нагрузку тому, кому её давать нельзя. Ради этого и добавлен девятый вопрос.',
+        crm:[['PROFILE','PELVIC'],['EDITION','осторожная'],['LIMITS','спина / грыжи'],['SAFETY','no']],
+        blocks:[
+          {t:'screen', tag:'Ваш профиль', h:'Опора и комфорт',
+           p:'По вашим ответам на первый план вышло то, что женщины обычно не обсуждают вслух.',
+           extra:'<div class="alert warn" style="margin-top:12px"><b>Ваша карта придёт в осторожной редакции</b>Вы отметили ограничения, которые важно учитывать при нагрузке. Часть действий заменена, раздел о границах расширен.</div>',
+           btn:'Получить полный разбор в Telegram'}
+        ]},
+
+      { day:'День 0', chan:'бот · первое касание',
+        who:'<b>Эксперт</b> — подтверждает, что именно заменяется при каких ограничениях.',
+        note:'Разница с обычной картой: силовых упражнений нет вообще, добавлен пункт «обсудить с врачом до начала».',
+        crm:[['CONTACT','получен'],['CARD_SENT','осторожная'],['RECHECK_DATE','+14 дней']],
+        blocks:[
+          {t:'bot', p:['Здравствуйте! Ваш разбор готов.','Сразу скажу про одну вещь: вы отметили проблемы со спиной, поэтому часть практик я заменила. Это не осторожность ради осторожности — универсальный комплекс вам сейчас может навредить.']},
+          {t:'doc', h:'Первые 14 дней. Осторожная редакция.', b:CARD_CAUTION}
+        ]},
+
+      { day:'Дни 1–5', chan:'бот · прогрев',
+        who:'<b>Копирайтер</b> — те же пять дней, два сообщения переписаны.',
+        note:'Скелет прогрева тот же. Меняются день 2 (практика без нагрузки) и день 5 (оффер с оговоркой про согласование с врачом).',
+        crm:[['TOUCH_1..5','доставлено'],['OFFER_NEXT','модуль + оговорка']],
+        blocks:[
+          {t:'bot', p:['<b>День 1.</b> Почему «качать» — не всегда правильный ответ.','<b>День 2.</b> Как проверить дыхание. Ходьба вместо упражнений.','<b>День 3.</b> Что обычно меняется за две недели и чего ждать не стоит.','<b>День 4.</b> Возражения: «я всё пробовала», «нет времени».','<b>День 5.</b> Тематический модуль — но начинать его стоит после того, как врач скажет, какая нагрузка вам разрешена.']}
+        ]},
+
+      { day:'День 14 · возврат', chan:'бот · точка правды',
+        who:'<b>Техспециалист</b>, <b>копирайтер</b>.',
+        note:'Маркеры другие: вместо «опоры внизу живота» — «легче ли даётся ходьба». Нельзя спрашивать про то, чего мы не давали.',
+        crm:[['RECHECK','запрошен']],
+        blocks:[
+          {t:'bot', p:['Две недели прошли. Сравните свои три маркера с записью.','Что получилось?']},
+          {t:'choice', opts:['Стало лучше','Частично','Ничего не изменилось']}
+        ]},
+
+      { day:'Развилка', chan:'бот · следующий шаг',
+        who:'<b>Владелец</b> — решает по личному разбору.',
+        note:'В этой ветке личный разбор уместен ещё раньше: при ограничениях подбор тактики без осмотра невозможен в принципе.',
+        crm:[['NEXT','разбор / модуль / клуб']],
+        blocks:[
+          {t:'forks', items:[
+            {cls:'good', h:'Стало лучше', p:'Закрепляем, предлагаем клуб. Отдельно: что можно добавлять к нагрузке и в каком темпе.'},
+            {cls:'', h:'Частично', p:'Модуль с адаптированной частью. Обязательно — напоминание про согласование нагрузки.'},
+            {cls:'sell', h:'Ничего не изменилось', p:'Личный разбор. При её ограничениях это честный ответ: подобрать тактику по тесту нельзя, нужен осмотр.'}
+          ]}
+        ]}
+    ]
+  },
+
+  stop: {
+    label:'Стоп-сигнал',
+    hint:'кровотечение после года без менструаций',
+    steps:[
+      { day:'Сайт · сразу после теста', chan:'страница результата',
+        who:'<b>Эксперт</b> — формулировки. <b>Техспециалист</b> — жёсткая блокировка продающей ветки.',
+        note:'Продающий экран не показывается вообще. Это единственное место в воронке, где маркетинг выключается полностью.',
+        crm:[['SAFETY','yes'],['PROFILE','не присваивается'],['OFFER_NEXT','медицинская маршрутизация'],['В конверсию','не идёт']],
+        blocks:[
+          {t:'screen', tag:'Важно', h:'Сначала — безопасность',
+           p:'',
+           extra:'<div class="alert stop"><b>Продающий результат мы вам не покажем</b>По одному из ваших ответов сейчас нужна очная медицинская оценка. Эта карта не предназначена для диагностики, поэтому мы не будем направлять вас в практическую программу до консультации — это было бы неправильно.</div><p style="margin:10px 0 0;font-size:14.5px"><b>Что стоит сделать:</b> записаться к врачу и описать симптом так, как вы описали его здесь. Если симптом усиливается, есть боль или обильное кровотечение — не откладывайте визит.</p>',
+           btn:'Получить материал о подготовке к приёму'}
+        ]},
+
+      { day:'День 0', chan:'бот · единственная выдача',
+        who:'<b>Эксперт</b> — список вопросов врачу. <b>Копирайтер</b> — подача без продажи.',
+        note:'Материал бесплатный и ни к чему не обязывает. Никаких продуктов в этом сообщении нет и быть не должно.',
+        crm:[['PREP_SENT','да'],['SEQUENCE','прогрев не запускается']],
+        blocks:[
+          {t:'bot', p:['Здравствуйте. Держите материал о подготовке к приёму — чтобы за пятнадцать минут в кабинете вы успели сказать главное.']},
+          {t:'doc', h:'Как подготовиться к приёму врача', b:CARD_STOP},
+          {t:'me', p:['Спасибо, записалась на четверг']}
+        ]},
+
+      { day:'День 10', chan:'бот · одно касание',
+        who:'<b>Копирайтер</b> — одно сообщение, без оффера. <b>Владелец</b> — утверждает, что так и остаётся.',
+        note:'Соблазн дожать здесь максимальный, и именно здесь нельзя. Один заботливый вопрос — и всё.',
+        crm:[['FOLLOWUP','отправлен'],['SALES','заблокированы']],
+        blocks:[
+          {t:'bot', p:['Получилось дойти до врача?','Если да и срочного ничего не нашли — напишите, и я подберу, с чего вам можно начинать. Если ещё нет — не откладывайте, пожалуйста.']},
+          {t:'choice', opts:['Была, срочного нет','Ещё не дошла']}
+        ]},
+
+      { day:'После', chan:'возврат в маршрут',
+        who:'<b>Владелец</b> — решает, кто и как переводит такого человека обратно.',
+        note:'Только после ответа «была, срочного нет» человек возвращается в обычный маршрут — и уже тогда получает карту и прогрев.',
+        crm:[['SAFETY','пересмотрен'],['PROFILE','присваивается'],['SEQUENCE','запускается']],
+        blocks:[
+          {t:'bot', p:['Хорошо, что сходили. Теперь можно собрать ваш коридор — пришлю разбор, как в обычном маршруте.','И отдельная метрика для нас: доля таких ответов показывает качество входящего трафика. Если их много — значит, реклама приводит женщин, которым нужен врач, а не практикум.']}
+        ]}
+    ]
+  }
+};
+
+var cur='normal', idx=0;
+var $=function(id){return document.getElementById(id)};
+
+function renderBranches(){
+  var box=$('branches'); box.innerHTML='';
+  Object.keys(BRANCHES).forEach(function(k){
+    var b=document.createElement('button');
+    b.className='bch'+(k===cur?' on':'');
+    b.innerHTML='<b>'+BRANCHES[k].label+'</b><span>'+BRANCHES[k].hint+'</span>';
+    b.addEventListener('click',function(){ cur=k; idx=0; renderBranches(); render(); });
+    box.appendChild(b);
+  });
+}
+
+function renderRail(){
+  var steps=BRANCHES[cur].steps, r=$('rail'); r.innerHTML='';
+  for(var i=0;i<steps.length;i++){
+    var s=document.createElement('i');
+    s.className = i<idx?'done':(i===idx?'now':'');
+    r.appendChild(s);
+  }
+  $('stepline').textContent='Шаг '+(idx+1)+' из '+steps.length+' · '+steps[idx].day;
+}
+
+function bubble(cls, paras){
+  var d=document.createElement('div'); d.className='msg'+(cls?' '+cls:'');
+  var b=document.createElement('div'); b.className='body';
+  b.innerHTML=paras.map(function(p){return '<p>'+p+'</p>'}).join('');
+  d.appendChild(b); return d;
+}
+
+function render(){
+  var step=BRANCHES[cur].steps[idx];
+  var s=$('stream'); s.innerHTML='';
+  $('chan').textContent=step.chan;
+
+  var tag=document.createElement('div'); tag.className='daytag'; tag.textContent=step.day;
+  s.appendChild(tag);
+
+  step.blocks.forEach(function(bl){
+    if(bl.t==='screen'){
+      var sc=document.createElement('div'); sc.className='screen';
+      sc.innerHTML='<span class="tag">'+bl.tag+'</span><h3>'+bl.h+'</h3>'+
+        (bl.p?'<p style="margin:0;font-size:15px">'+bl.p+'</p>':'')+
+        (bl.extra||'')+'<div class="fake-btn">'+bl.btn+'</div>';
+      s.appendChild(sc);
+    } else if(bl.t==='bot'){
+      s.appendChild(bubble('', bl.p));
+    } else if(bl.t==='me'){
+      s.appendChild(bubble('me', bl.p));
+    } else if(bl.t==='doc'){
+      var d=document.createElement('div'); d.className='msg';
+      d.innerHTML='<div class="body doc"><div class="doc-h">'+bl.h+'</div><div class="doc-b">'+bl.b+'</div></div>';
+      s.appendChild(d);
+    } else if(bl.t==='choice'){
+      var row=document.createElement('div'); row.className='choices';
+      bl.opts.forEach(function(o){
+        var c=document.createElement('button'); c.className='choice'; c.textContent=o;
+        c.addEventListener('click',function(){
+          Array.prototype.forEach.call(row.children,function(x){x.classList.remove('picked')});
+          c.classList.add('picked');
+        });
+        row.appendChild(c);
+      });
+      s.appendChild(row);
+    } else if(bl.t==='forks'){
+      var f=document.createElement('div'); f.className='forks';
+      bl.items.forEach(function(it){
+        var el=document.createElement('div'); el.className='fork '+(it.cls||'');
+        el.innerHTML='<h5>'+it.h+'</h5><p>'+it.p+'</p>';
+        f.appendChild(el);
+      });
+      s.appendChild(f);
+    }
+  });
+
+  var c=$('crm'); c.innerHTML='';
+  step.crm.forEach(function(kv){
+    var r=document.createElement('div'); r.className='kv';
+    r.innerHTML='<span>'+kv[0]+'</span><span>'+kv[1]+'</span>';
+    c.appendChild(r);
+  });
+
+  $('who').innerHTML=step.who;
+  $('note').innerHTML='<b>Зачем этот шаг</b>'+step.note;
+
+  $('back').style.visibility = idx===0?'hidden':'visible';
+  var last = idx===BRANCHES[cur].steps.length-1;
+  $('next').disabled = last;
+  $('next').textContent = last ? 'Конец маршрута' : 'Дальше';
+
+  renderRail();
+}
+
+$('next').addEventListener('click',function(){
+  if(idx<BRANCHES[cur].steps.length-1){ idx++; render(); }
+});
+$('back').addEventListener('click',function(){
+  if(idx>0){ idx--; render(); }
+});
+
+renderBranches();
+render();
+})();
+</script>
+</body>
+</html>

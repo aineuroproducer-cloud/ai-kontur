@@ -476,3 +476,5 @@ a:focus-visible, button:focus-visible, summary:focus-visible { outline: 3px soli
 }
 .shot-left img { object-position: left top; }
 .carousel-hint { display: none; margin: 0 0 14px; color: var(--ink-faint); font-size: 14px; }
+.final-actions-row { display: flex; flex-wrap: wrap; gap: 12px; }
+.shot-right img { object-position: right top; }

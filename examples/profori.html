@@ -47,6 +47,15 @@
   .pill{display:inline-block;font-size:11px;padding:3px 9px;border-radius:999px;background:rgba(74,214,192,.15);
    color:var(--good);border:1px solid rgba(74,214,192,.3);margin-left:8px}
   .pill.demo{background:rgba(255,184,107,.13);color:var(--warn);border-color:rgba(255,184,107,.3)}
+
+  #output.md{white-space:normal;line-height:1.55}
+  #output.md h2,#output.md h3,#output.md h4{margin:14px 0 6px;font-size:15px;color:#fff}
+  #output.md h2{font-size:17px;margin-top:0}
+  #output.md p{margin:0 0 8px}
+  #output.md ul,#output.md ol{margin:0 0 8px;padding-left:20px}
+  #output.md li{margin-bottom:3px}
+  #output.md hr{border:0;border-top:1px solid rgba(255,255,255,.12);margin:12px 0}
+  #output.md strong{color:#fff}
 </style>
 </head>
 <body>
@@ -108,16 +117,33 @@ const SYSTEM_PROMPT = `Ты — AI-ассистент профориентато
 БЛОК "REPORT" (после сессии, черновик итогового отчёта-презентации). Для подростка: ФИО, возраст, класс, город, запрос родителей и подростка, даты, инструменты, школьные предметы, хобби, сильные стороны, подходящие сферы, рассматриваемые профессии, заинтересовавшие профессии, рекомендации по экзаменам (ОГЭ/ЕГЭ), предметы для фокуса, программы ВУЗов, общие рекомендации. Для взрослого: запрос, точка А, сильные стороны, подходящие сферы, рекомендуемые сценарии (маршрутная карта), общие рекомендации и шаги.
 Верни строго JSON: {"analysis":"...markdown...","report":"...markdown..."}. Без пояснений вне JSON.`;
 let result={analysis:"",final:""}, curTab="analysis";
-function loadDemo(k){const d=DEMO[k];document.getElementById('report').value=d.report;
+let demoKey=null;
+function loadDemo(k){demoKey=k;const d=DEMO[k];document.getElementById('report').value=d.report;
   document.getElementById('context').value=d.context;setStatus("Загружен демо-клиент: "+d.label+". Нажми «Проанализировать».","");}
 function clearAll(){report.value=context.value="";result={analysis:"",final:""};render();setStatus("","");}
 function setStatus(t,c){const s=document.getElementById('status');s.textContent=t;s.className="status "+(c||"");}
 function showTab(t){curTab=t;document.getElementById('tab-analysis').classList.toggle('active',t==='analysis');
   document.getElementById('tab-final').classList.toggle('active',t==='final');render();}
 function render(){const txt=curTab==='analysis'?result.analysis:result.final;
-  document.getElementById('output').textContent=txt||("Здесь появится "+(curTab==='analysis'?"анализ и гипотезы":"итоговый отчёт")+".");}
+  const out=document.getElementById('output');
+  if(txt){out.innerHTML=mdToHtml(txt);out.classList.add('md');}
+  else{out.textContent="Здесь появится "+(curTab==='analysis'?"анализ и гипотезы":"итоговый отчёт")+".";out.classList.remove('md');}}
+function esc(t){return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function inl(t){return esc(t).replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/(^|[^*])\*([^*\n]+)\*/g,'$1<em>$2</em>');}
+function mdToHtml(md){const lines=md.replace(/\r/g,'').split('\n');let h='',list=null,para=[];
+  const flushP=()=>{if(para.length){h+='<p>'+para.map(inl).join('<br>')+'</p>';para=[];}};
+  const flushL=()=>{if(list){h+='</'+list+'>';list=null;}};
+  for(const raw of lines){const l=raw.trimEnd();let m;
+    if(!l.trim()){flushP();flushL();continue;}
+    if(/^-{3,}$/.test(l.trim())){flushP();flushL();h+='<hr>';continue;}
+    if(m=l.match(/^(#{1,4})\s+(.*)$/)){flushP();flushL();const n=Math.min(m[1].length+1,4);h+='<h'+n+'>'+inl(m[2])+'</h'+n+'>';continue;}
+    if(m=l.match(/^\s*[-*•]\s+(.*)$/)){flushP();if(list!=='ul'){flushL();h+='<ul>';list='ul';}h+='<li>'+inl(m[1])+'</li>';continue;}
+    if(m=l.match(/^\s*\d+[.)]\s+(.*)$/)){flushP();if(list!=='ol'){flushL();h+='<ol>';list='ol';}h+='<li>'+inl(m[1])+'</li>';continue;}
+    flushL();para.push(l.trim());}
+  flushP();flushL();return h;}
 function detectDemo(){const t=document.getElementById('report').value.trim();
-  for(const k in DEMO){if(t && DEMO[k].report.slice(0,50)===t.slice(0,50))return k;}
+  if(demoKey && t===DEMO[demoKey].report.trim())return demoKey;
+  for(const k in DEMO){if(t && DEMO[k].report.trim()===t)return k;}
   const c=(document.getElementById('context').value+t).toLowerCase();
   if(c.includes('подрост')||c.includes('класс'))return 'teen'; if(c.includes('34')||c.includes('руковод'))return 'adult'; return null;}
 async function generate(){
