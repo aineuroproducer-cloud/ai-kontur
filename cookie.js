@@ -6,7 +6,9 @@
   var bar = document.createElement("div");
   bar.setAttribute("role", "region");
   bar.setAttribute("aria-label", "Уведомление о cookie");
-  bar.style.cssText = "position:fixed;left:16px;right:16px;bottom:16px;z-index:9999;max-width:640px;margin:0 auto;" +
+  // В квизе внизу экрана живёт панель с кнопкой «Следующий вопрос» — там плашку ставим наверх
+  var edge = document.getElementById("apanel") ? "top" : "bottom";
+  bar.style.cssText = "position:fixed;left:16px;right:16px;" + edge + ":16px;z-index:9999;max-width:640px;margin:0 auto;" +
     "display:flex;gap:14px;align-items:center;flex-wrap:wrap;padding:14px 16px;border-radius:12px;" +
     "background:#20231f;color:#f4f1ea;font:14px/1.5 system-ui,-apple-system,'Segoe UI',sans-serif;box-shadow:0 8px 30px rgba(0,0,0,.25)";
 
