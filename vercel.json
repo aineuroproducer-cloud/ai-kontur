@@ -1,1 +1,16 @@
-{ "cleanUrls": true }
+{
+  "cleanUrls": true,
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "ai-kontur-eight.vercel.app"
+        }
+      ],
+      "destination": "https://kontur.neiroproducer.ru/:path*",
+      "permanent": true
+    }
+  ]
+}
