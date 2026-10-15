@@ -110,6 +110,8 @@ html,body{min-height:100vh;background:var(--bg);color:var(--text);font-family:'I
 .sub-title{font-family:'Unbounded',sans-serif;font-size:clamp(18px,3vw,28px);font-weight:700;line-height:1.3;margin-bottom:14px}
 .sub-text{font-size:14px;color:var(--muted);line-height:1.75;max-width:460px;margin:0 auto 30px}
 .sub-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.share-note{font-size:13px;color:var(--muted);line-height:1.7;max-width:460px;margin:28px auto 0}
+.share-note a{color:var(--text);font-weight:600;text-decoration:underline;text-underline-offset:3px}
 .btn-outline{display:inline-flex;align-items:center;gap:8px;padding:13px 24px;background:transparent;color:var(--text);font-family:'Inter',sans-serif;font-size:14px;font-weight:600;border:1px solid rgba(139,92,246,.5);border-radius:8px;cursor:pointer;transition:all .2s;text-decoration:none}
 .btn-outline:hover{border-color:var(--accent);background:var(--accent-glow)}
 </style>
@@ -190,6 +192,7 @@ html,body{min-height:100vh;background:var(--bg);color:var(--text);font-family:'I
       <a href="https://t.me/neiroproducer_bot?start=c1785849197311-ds" id="cta-bot" target="_blank" rel="noopener" class="btn">Получить Аудитора и Аналитика &nbsp;→</a>
       <a href="https://t.me/neiro_producer" target="_blank" rel="noopener" class="btn-outline">Канал Нейропродюсера &nbsp;→</a>
     </div>
+    <p class="share-note">Узнали себя? Сделайте скриншот результата и&nbsp;пришлите мне в&nbsp;Telegram&nbsp;— подскажу, с&nbsp;чего начать именно вам. <a href="https://t.me/svechka_v" id="cta-share" target="_blank" rel="noopener">Написать Светлане&nbsp;→</a></p>
   </div>
 </div>
 
@@ -587,6 +590,7 @@ function showResult(){
   const winner = ranked[0];
   const total = Object.values(scores).reduce((x,y)=>x+y,0) || 1;
   const arch = ARCHETYPES[winner];
+  document.getElementById('cta-share').href = 'https://t.me/svechka_v?text=' + encodeURIComponent('Здравствуйте! Мой результат в квизе «Кто вы в работе с ИИ» — «' + arch.name + '». Пришлю скриншот.');
   const now = new Date();
   const dateStr = now.toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'});
   document.getElementById('res-date').textContent = `ДИАГНОСТИКА · ${dateStr}`;
@@ -644,6 +648,7 @@ function showResult(){
 document.addEventListener('DOMContentLoaded',()=>{
   if(BOT_LINK) document.getElementById('cta-bot').href = BOT_LINK;
   document.getElementById('cta-bot').addEventListener('click', function(){ if(typeof ym==='function') ym(113178943,'reachGoal','kviz_bot'); });
+  document.getElementById('cta-share').addEventListener('click', function(){ if(typeof ym==='function') ym(113178943,'reachGoal','kviz_share'); });
   const start = document.getElementById('screen-start');
   start.style.display='flex';
   start.style.opacity='0';
