@@ -105,12 +105,13 @@ html,body{min-height:100vh;background:var(--bg);color:var(--text);font-family:'I
 .exit-label{font-family:'Unbounded',sans-serif;font-size:8px;letter-spacing:.22em;color:var(--accent-l);margin-bottom:9px}
 .exit-text{font-size:16px;font-weight:600;color:var(--text);line-height:1.55}
 .plan-box{padding:26px 24px;background:var(--card);border:1px solid var(--border);border-radius:12px;margin:0 0 48px}
-.res-top{padding-bottom:24px}
+.res-top{padding-bottom:24px;max-width:920px}
 .res-more{padding-top:48px;border-top:1px solid var(--border)}
 .sticky-cta{position:fixed;left:16px;right:16px;bottom:16px;z-index:50;display:none;justify-content:center;align-items:center;padding:14px 18px;background:var(--accent);color:#fff;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;border-radius:10px;text-decoration:none;box-shadow:0 10px 30px rgba(0,0,0,.45);max-width:520px;margin:0 auto}
 .sticky-cta.show{display:flex}
 .r-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;gap:12px}
-.r-eyebrow,.r-label,.r-card-top,.r-card-foot{font-family:'Unbounded',sans-serif;font-size:8px;letter-spacing:.2em}
+.r-eyebrow,.r-label{font-family:'Unbounded',sans-serif;font-size:8px;letter-spacing:.2em}
+.r-card-top,.r-card-foot{font-family:'Inter',sans-serif;font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase}
 .r-eyebrow{color:var(--accent-l)}
 .r-link{background:none;border:none;color:var(--muted);font-size:13px;cursor:pointer;text-decoration:underline;text-underline-offset:3px;padding:0}
 .r-link:hover{color:var(--text)}
@@ -118,12 +119,12 @@ html,body{min-height:100vh;background:var(--bg);color:var(--text);font-family:'I
 @media(max-width:760px){.r-grid{grid-template-columns:1fr}}
 .r-card{position:relative;padding:22px;border-radius:16px;border:1px solid rgba(139,92,246,.35);background:linear-gradient(160deg,rgba(139,92,246,.20),rgba(255,255,255,.02) 70%);overflow:hidden}
 .r-card-top,.r-card-foot{display:flex;justify-content:space-between;gap:10px;color:var(--muted)}
-.r-card-foot{margin-top:22px;padding-top:14px;border-top:1px solid var(--border);line-height:1.8;font-size:7px}
+.r-card-foot{margin-top:22px;padding-top:14px;border-top:1px solid var(--border);line-height:1.7;display:block;text-align:center}
 .r-ring{width:132px;height:132px;border-radius:50%;margin:26px auto 22px;display:grid;place-items:center;background:conic-gradient(var(--accent) calc(var(--p)*1%),rgba(255,255,255,.07) 0)}
 .r-ring>div{width:104px;height:104px;border-radius:50%;background:#0d0d14;display:flex;flex-direction:column;align-items:center;justify-content:center}
 .r-ring b{font-family:'Unbounded',sans-serif;font-size:22px;color:var(--text)}
 .r-ring span{font-size:11px;color:var(--muted);margin-top:2px}
-.r-name{font-family:'Unbounded',sans-serif;font-size:clamp(24px,4vw,32px);font-weight:900;color:var(--accent-l);line-height:1.15;margin:0 0 12px;text-align:center}
+.r-name{font-family:'Unbounded',sans-serif;font-size:28px;font-weight:800;white-space:nowrap;color:var(--accent-l);line-height:1.15;margin:0 0 12px;text-align:center}
 .r-quote{font-size:15px;line-height:1.55;color:var(--text);text-align:center;margin:0}
 .r-lead{font-size:17px;line-height:1.65;color:var(--text);margin:0 0 22px}
 .r-item{padding:0 0 16px 16px;margin-bottom:16px;border-left:2px solid rgba(139,92,246,.45)}
@@ -728,11 +729,11 @@ function showResult(){
     <div class="r-top"><span class="r-eyebrow">ВАШ РЕЗУЛЬТАТ ГОТОВ</span><button class="r-link" type="button" onclick="location.reload()">Пройти заново</button></div>
     <div class="r-grid">
       <article class="r-card">
-        <div class="r-card-top"><span>ПАТТЕРН В РАБОТЕ С ИИ</span><span>6 ПАТТЕРНОВ</span></div>
+        <div class="r-card-top" style="justify-content:center">Ваш паттерн в работе с ИИ</div>
         <div class="r-ring" style="--p:${share}"><div><b>${scores[winner]}</b><span>из ${total} ответов</span></div></div>
         <h1 class="r-name">${arch.name}</h1>
         <p class="r-quote">${arch.headline.replace('\n',' ')}</p>
-        <div class="r-card-foot"><span>СВЕТЛАНА ВИНОКУРОВА<br>KONTUR.NEIROPRODUCER.RU/KVIZ</span><span style="text-align:right">ДИАГНОСТИКА<br>${dateStr.toUpperCase()}</span></div>
+        <div class="r-card-foot">Светлана Винокурова · ${dateStr}<br>kontur.neiroproducer.ru/kviz</div>
       </article>
       <div class="r-story">
         <p class="r-lead">${arch.sub}</p>
@@ -790,6 +791,9 @@ function showResult(){
   if(!PLAN_IN_BOT) document.getElementById('copy-prompt').onclick = e => { copyText(plan.prompt.replace(/\u00a0/g,' '), e.currentTarget, 'Скопировано ✓'); goal('kviz_prompt_copy'); };
 
   showScreen('screen-result');
+  const fitName=()=>{ const el=document.querySelector('.r-name'); if(!el) return; let fs=28; el.style.fontSize=fs+'px'; while(el.scrollWidth>el.clientWidth && fs>16){ fs--; el.style.fontSize=fs+'px'; } };
+  setTimeout(fitName,450); if(document.fonts&&document.fonts.ready) document.fonts.ready.then(()=>setTimeout(fitName,500));
+  window.addEventListener('resize',fitName);
 
   // animate scale bars after screen shows
   setTimeout(()=>{
