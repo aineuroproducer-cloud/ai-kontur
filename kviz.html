@@ -104,6 +104,17 @@ html,body{min-height:100vh;background:var(--bg);color:var(--text);font-family:'I
 .exit-box{padding:22px 24px;background:var(--accent-glow);border:1px solid rgba(139,92,246,.3);border-radius:12px;margin-bottom:56px}
 .exit-label{font-family:'Unbounded',sans-serif;font-size:8px;letter-spacing:.22em;color:var(--accent-l);margin-bottom:9px}
 .exit-text{font-size:16px;font-weight:600;color:var(--text);line-height:1.55}
+.plan-box{padding:26px 24px;background:var(--card);border:1px solid var(--border);border-radius:12px;margin:-32px 0 56px}
+.plan-title{font-family:'Unbounded',sans-serif;font-size:8px;letter-spacing:.22em;color:var(--accent-l);margin-bottom:14px}
+.plan-steps{margin:0 0 18px;padding-left:20px;color:var(--text);font-size:15px;line-height:1.6}
+.plan-steps li{margin-bottom:8px}
+.plan-rule{font-size:15px;color:var(--text);line-height:1.55;margin-bottom:18px}
+.plan-rule b{color:var(--accent-l)}
+.plan-prompt{font-size:14px;color:var(--muted);line-height:1.6;background:rgba(0,0,0,.25);border:1px solid var(--border);border-radius:8px;padding:14px 16px;margin:8px 0 12px}
+.plan-actions{display:flex;gap:10px;flex-wrap:wrap}
+.plan-btn{display:inline-flex;align-items:center;gap:6px;padding:11px 18px;background:transparent;color:var(--text);font-family:'Inter',sans-serif;font-size:13px;font-weight:600;border:1px solid rgba(139,92,246,.5);border-radius:8px;cursor:pointer;transition:all .2s}
+.plan-btn:hover{border-color:var(--accent);background:var(--accent-glow)}
+.plan-btn.main{background:var(--accent);border-color:var(--accent)}
 
 /* ── SUBSCRIPTION ── */
 .sub-section{border-top:1px solid var(--border);padding:48px 40px;text-align:center;max-width:780px;margin:0 auto;width:100%}
@@ -378,6 +389,63 @@ const INTS = {
   8: { top:"Ваш паттерн — не случайность.", main:"У него есть логика.", sub:"И вы сейчас её увидите." }
 };
 
+// План на неделю под каждый результат (тексты — Neuroproducer/funnel/10-kviz-plans.md)
+const PLANS = {
+ "П": {
+  "steps": [
+   "Выберите задачу, которую откладываете, потому что «надо сначала сформулировать». Поставьте таймер на 10 минут и отправьте запрос как есть, без шлифовки.",
+   "Не переписывайте запрос — дорабатывайте ответ. Попросите ИИ задать вам три уточняющих вопроса и ответьте на них.",
+   "В конце недели сравните, сколько времени ушло на запрос и сколько на доработку результата. Обычно выигрыш оказывается во втором."
+  ],
+  "rule": "черновик за 10 минут полезнее идеального запроса через неделю.",
+  "prompt": "Вот моя задача: [опишите как есть, хоть в двух строках]. Прежде чем отвечать, задай мне три вопроса, без которых результат будет неточным. Потом сделай первый черновик — я поправлю."
+ },
+ "К": {
+  "steps": [
+   "Выпишите все ИИ-сервисы, которыми пользовались за месяц. Оставьте два: один для текстов, один для работы с вашими файлами и данными.",
+   "Выберите одну повторяющуюся задачу и всю неделю делайте её только в этих двух сервисах.",
+   "Новые сервисы, которые попадутся, записывайте в список «посмотреть потом». Открывать его — не раньше чем через месяц."
+  ],
+  "rule": "новый инструмент — только когда старый упёрся в ограничение, которое вы можете назвать.",
+  "prompt": "Я хочу [задача]. Вот как я делаю её сейчас: [шаги]. Помоги довести её до результата в этом чате и не предлагай других сервисов. Если чего-то не хватает — скажи, чего именно, а не где это взять."
+ },
+ "Ск": {
+  "steps": [
+   "Возьмите задачу, которую регулярно делаете с ИИ, и запишите всё, что проверяете в ответе.",
+   "Оставьте одну-две главные проверки — цифры, факты, имена. Стиль и формулировки перестаньте перепроверять.",
+   "Просите ИИ самого показывать, на чём основан каждый вывод и где он не уверен, — и проверяйте прежде всего эти места."
+  ],
+  "rule": "проверяю то, что дорого обойдётся при ошибке. Остальное принимаю.",
+  "prompt": "Сделай [задача]. После ответа отдельным списком укажи: на каких данных основан каждый вывод, где ты не уверен и что мне стоит проверить в первую очередь."
+ },
+ "Т": {
+  "steps": [
+   "Выберите из сохранённого один материал — тот, что ближе всего к вашей текущей работе. Остальные пока не открывайте.",
+   "В течение двух дней примените его к одной реальной задаче, даже если кажется, что разобрались не до конца.",
+   "Запишите, что получилось и что нет. Это ваш первый собственный кейс — он ценнее следующего материала."
+  ],
+  "rule": "новый материал — только после того, как применён предыдущий.",
+  "prompt": "Вот материал, который я изучаю: [вставьте конспект или текст]. Вот моя рабочая задача: [опишите]. Покажи, как применить из материала одну вещь прямо к этой задаче, по шагам."
+ },
+ "И": {
+  "steps": [
+   "Выпишите все начатые идеи с ИИ. Выберите одну — самую маленькую, которую можно закончить за неделю.",
+   "Решите заранее, как выглядит «готово»: одна фраза о том, что будет на выходе и кому вы это покажете.",
+   "Новые идеи всю неделю записывайте в отдельный список и не начинайте."
+  ],
+  "rule": "одна идея в работе, остальные — в очереди.",
+  "prompt": "Вот моя идея: [опишите]. Сократи её до версии, которую можно сделать за три часа и показать одному человеку. Распиши шаги на неделю, по 30 минут в день."
+ },
+ "Н": {
+  "steps": [
+   "Найдите один результат, сделанный с ИИ за последний месяц, который сэкономил вам время.",
+   "Покажите его одному человеку — коллеге, клиенту или в рабочем чате — и коротко расскажите, как он сделан.",
+   "Запишите реакцию. Чаще всего вместо осуждения приходит вопрос: «А как ты это сделал(а)?»"
+  ],
+  "rule": "ИИ — рабочий инструмент. Стыдно не пользоваться им, а не проверять результат.",
+  "prompt": "Вот результат, который я сделал(а) с твоей помощью: [вставьте]. Помоги коротко описать для коллег, как он получен: какая была задача, что сделал ИИ, что проверил(а) я. 5–6 предложений, без хвастовства."
+ }
+};
 const ARCHETYPES = {
   П: {
     name:"Перфекционист",
@@ -583,6 +651,36 @@ function afterIntermediate(){
 // ══════════════════════════════════════════
 // RESULT
 // ══════════════════════════════════════════
+function goal(name){ if(typeof ym==='function') ym(113178943,'reachGoal',name); }
+function copyText(text, btn, done){
+  const ok = () => { if(btn){ const t=btn.textContent; btn.textContent=done; setTimeout(()=>btn.textContent=t,2000); } };
+  if(navigator.clipboard && window.isSecureContext){ navigator.clipboard.writeText(text).then(ok, ()=>fallbackCopy(text)&&ok()); }
+  else if(fallbackCopy(text)) ok();
+}
+function fallbackCopy(text){
+  const ta=document.createElement('textarea'); ta.value=text; ta.style.position='fixed'; ta.style.opacity='0';
+  document.body.appendChild(ta); ta.select(); let r=false; try{ r=document.execCommand('copy'); }catch(e){} ta.remove(); return r;
+}
+function savePlan(name, plan, btn){
+  const text = [
+    'Мой результат в квизе «Кто вы в работе с ИИ»: ' + name + '.',
+    '',
+    'План на эту неделю:',
+    ...plan.steps.map((s,i)=>(i+1)+'. '+s),
+    '',
+    'Правило: ' + plan.rule,
+    '',
+    'Промпт, чтобы начать:',
+    plan.prompt,
+    '',
+    'Пройти квиз: https://kontur.neiroproducer.ru/kviz'
+  ].join('\n').replace(/\u00a0/g,' ');
+  if(navigator.share && window.matchMedia('(pointer:coarse)').matches){
+    navigator.share({ title:'Мой план на неделю — ' + name, text }).catch(()=>{});
+  } else {
+    copyText(text, btn, 'План скопирован ✓');
+  }
+}
 function showResult(){
   // determine winner
   // Побеждает паттерн с наибольшим числом ответов; при ничьей — тот, что выбран позже
@@ -590,6 +688,7 @@ function showResult(){
   const winner = ranked[0];
   const total = Object.values(scores).reduce((x,y)=>x+y,0) || 1;
   const arch = ARCHETYPES[winner];
+  const plan = PLANS[winner];
   document.getElementById('cta-share').href = 'https://t.me/svechka_v?text=' + encodeURIComponent('Здравствуйте! Мой результат в квизе «Кто вы в работе с ИИ» — «' + arch.name + '». Пришлю скриншот.');
   const now = new Date();
   const dateStr = now.toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'});
@@ -629,7 +728,20 @@ function showResult(){
       <div class="exit-label">ВЫХОД ДЛЯ ВАС</div>
       <div class="exit-text">${arch.exit}</div>
     </div>
+    <div class="plan-box">
+      <div class="plan-title">ПЛАН НА ЭТУ НЕДЕЛЮ</div>
+      <ol class="plan-steps">${plan.steps.map(s=>`<li>${s}</li>`).join('')}</ol>
+      <div class="plan-rule"><b>Правило:</b> ${plan.rule}</div>
+      <div class="plan-title">ПРОМПТ, ЧТОБЫ НАЧАТЬ</div>
+      <div class="plan-prompt">${plan.prompt}</div>
+      <div class="plan-actions">
+        <button class="plan-btn" id="copy-prompt" type="button">Скопировать промпт</button>
+        <button class="plan-btn main" id="save-plan" type="button">Сохранить план</button>
+      </div>
+    </div>
   `;
+  document.getElementById('copy-prompt').onclick = e => { copyText(plan.prompt.replace(/\u00a0/g,' '), e.currentTarget, 'Скопировано ✓'); goal('kviz_prompt_copy'); };
+  document.getElementById('save-plan').onclick = e => { savePlan(arch.name, plan, e.currentTarget); goal('kviz_plan_save'); };
 
   showScreen('screen-result');
 
