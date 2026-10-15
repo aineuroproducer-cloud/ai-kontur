@@ -105,10 +105,41 @@ html,body{min-height:100vh;background:var(--bg);color:var(--text);font-family:'I
 .exit-label{font-family:'Unbounded',sans-serif;font-size:8px;letter-spacing:.22em;color:var(--accent-l);margin-bottom:9px}
 .exit-text{font-size:16px;font-weight:600;color:var(--text);line-height:1.55}
 .plan-box{padding:26px 24px;background:var(--card);border:1px solid var(--border);border-radius:12px;margin:0 0 48px}
-.res-top{padding-bottom:8px}.res-top .exit-box{margin-bottom:0}
+.res-top{padding-bottom:24px}
 .res-more{padding-top:48px;border-top:1px solid var(--border)}
 .sticky-cta{position:fixed;left:16px;right:16px;bottom:16px;z-index:50;display:none;justify-content:center;align-items:center;padding:14px 18px;background:var(--accent);color:#fff;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;border-radius:10px;text-decoration:none;box-shadow:0 10px 30px rgba(0,0,0,.45);max-width:520px;margin:0 auto}
 .sticky-cta.show{display:flex}
+.r-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;gap:12px}
+.r-eyebrow,.r-label,.r-card-top,.r-card-foot{font-family:'Unbounded',sans-serif;font-size:8px;letter-spacing:.2em}
+.r-eyebrow{color:var(--accent-l)}
+.r-link{background:none;border:none;color:var(--muted);font-size:13px;cursor:pointer;text-decoration:underline;text-underline-offset:3px;padding:0}
+.r-link:hover{color:var(--text)}
+.r-grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:28px;align-items:start;margin-bottom:56px}
+@media(max-width:760px){.r-grid{grid-template-columns:1fr}}
+.r-card{position:relative;padding:22px;border-radius:16px;border:1px solid rgba(139,92,246,.35);background:linear-gradient(160deg,rgba(139,92,246,.20),rgba(255,255,255,.02) 70%);overflow:hidden}
+.r-card-top,.r-card-foot{display:flex;justify-content:space-between;gap:10px;color:var(--muted)}
+.r-card-foot{margin-top:22px;padding-top:14px;border-top:1px solid var(--border);line-height:1.8;font-size:7px}
+.r-ring{width:132px;height:132px;border-radius:50%;margin:26px auto 22px;display:grid;place-items:center;background:conic-gradient(var(--accent) calc(var(--p)*1%),rgba(255,255,255,.07) 0)}
+.r-ring>div{width:104px;height:104px;border-radius:50%;background:#0d0d14;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.r-ring b{font-family:'Unbounded',sans-serif;font-size:22px;color:var(--text)}
+.r-ring span{font-size:11px;color:var(--muted);margin-top:2px}
+.r-name{font-family:'Unbounded',sans-serif;font-size:clamp(24px,4vw,32px);font-weight:900;color:var(--accent-l);line-height:1.15;margin:0 0 12px;text-align:center}
+.r-quote{font-size:15px;line-height:1.55;color:var(--text);text-align:center;margin:0}
+.r-lead{font-size:17px;line-height:1.65;color:var(--text);margin:0 0 22px}
+.r-item{padding:0 0 16px 16px;margin-bottom:16px;border-left:2px solid rgba(139,92,246,.45)}
+.r-item p{font-size:14px;line-height:1.65;color:var(--muted);margin:6px 0 0}
+.r-label{color:var(--accent-l)}
+.r-story .exit-box{margin:6px 0 0}
+.r-sec{margin-bottom:8px}
+.r-sec h2{font-family:'Unbounded',sans-serif;font-size:18px;font-weight:700;color:var(--text);margin:0 0 8px}
+.r-sec>p{font-size:14px;color:var(--muted);line-height:1.6;margin:0 0 22px}
+.sc-row.win .sc-name{color:var(--text);font-weight:600}
+.sc-tag{font-family:'Unbounded',sans-serif;font-size:7px;letter-spacing:.15em;color:var(--accent-l);margin-left:8px;white-space:nowrap}
+@media(max-width:560px){.sc-name{min-width:120px;font-size:12px}.sc-tag{display:block;margin:3px 0 0}}
+.r-method{margin-top:8px;color:var(--muted);font-size:13px;line-height:1.7}
+.r-method summary{cursor:pointer;color:var(--text);font-weight:600;font-size:14px}
+.r-method p{margin:12px 0 0}
+.plan-teaser{font-size:14px;color:var(--muted);line-height:1.6;margin:0}
 .plan-title{font-family:'Unbounded',sans-serif;font-size:8px;letter-spacing:.22em;color:var(--accent-l);margin-bottom:14px}
 .plan-steps{margin:0 0 18px;padding-left:20px;color:var(--text);font-size:15px;line-height:1.6}
 .plan-steps li{margin-bottom:8px}
@@ -396,6 +427,8 @@ const INTS = {
 };
 
 // План на неделю под каждый результат (тексты — Neuroproducer/funnel/10-kviz-plans.md)
+// true — план целиком отдаёт бот (ветка в BotHelp, funnel/11-kviz-bot-branch.md), на странице только первый шаг
+const PLAN_IN_BOT = false;
 const PLANS = {
  "П": {
   "steps": [
@@ -594,6 +627,7 @@ function renderQuestion(data, idx){
 }
 
 function selectAnswer(idx){
+  if(document.getElementById('screen-result').classList.contains('active')) return;
   if(document.querySelector('.aitem.sel')) return;
   const data = step===0 ? INTRO : QS[step-1];
   const ans = data.answers[order[idx]];
@@ -668,6 +702,7 @@ function fallbackCopy(text){
   document.body.appendChild(ta); ta.select(); let r=false; try{ r=document.execCommand('copy'); }catch(e){} ta.remove(); return r;
 }
 function showResult(){
+  hidePanel();
   // determine winner
   // Побеждает паттерн с наибольшим числом ответов; при ничьей — тот, что выбран позже
   const ranked = Object.keys(scores).sort((a,b)=> (scores[b]-scores[a]) || ((lastPick[b]||0)-(lastPick[a]||0)));
@@ -679,39 +714,50 @@ function showResult(){
   const now = new Date();
   const dateStr = now.toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'});
   document.getElementById('res-date').textContent = `ДИАГНОСТИКА · ${dateStr}`;
+  const share = Math.round(scores[winner]/total*100);
 
-  const scalesHTML = ranked.filter(k=>scores[k]>0).map(k=>`
-    <div class="sc-row">
-      <div class="sc-name">${ARCHETYPES[k].name}</div>
+  const scalesHTML = ranked.map(k=>`
+    <div class="sc-row${k===winner?' win':''}">
+      <div class="sc-name">${ARCHETYPES[k].name}${k===winner?'<span class="sc-tag">← ГЛАВНЫЙ</span>':''}</div>
       <div class="sc-bg"><div class="sc-fill" data-val="${Math.round(scores[k]/total*100)}"></div></div>
       <div class="sc-val">${scores[k]}&nbsp;из&nbsp;${total}</div>
     </div>
   `).join('');
 
   document.getElementById('res-content').innerHTML = `
-    <div class="arch-num">АРХЕТИП · ${arch.name.toUpperCase()}</div>
-    <div class="arch-headline">${arch.headline.replace('\n','<br>')}</div>
-    <div class="arch-sub">${arch.sub}</div>
-    <div class="three">
-      <div class="pcard">
-        <div class="pc-label">СКРЫТАЯ ВЫГОДА</div>
-        <div class="pc-text">${arch.benefit}</div>
-      </div>
-      <div class="pcard">
-        <div class="pc-label">ЦЕНА</div>
-        <div class="pc-text">${arch.cost}</div>
-      </div>
-      <div class="pcard">
-        <div class="pc-label">ВАША СИЛА</div>
-        <div class="pc-text">${arch.strength}</div>
+    <div class="r-top"><span class="r-eyebrow">ВАШ РЕЗУЛЬТАТ ГОТОВ</span><button class="r-link" type="button" onclick="location.reload()">Пройти заново</button></div>
+    <div class="r-grid">
+      <article class="r-card">
+        <div class="r-card-top"><span>ПАТТЕРН В РАБОТЕ С ИИ</span><span>6 ПАТТЕРНОВ</span></div>
+        <div class="r-ring" style="--p:${share}"><div><b>${scores[winner]}</b><span>из ${total} ответов</span></div></div>
+        <h1 class="r-name">${arch.name}</h1>
+        <p class="r-quote">${arch.headline.replace('\n',' ')}</p>
+        <div class="r-card-foot"><span>СВЕТЛАНА ВИНОКУРОВА<br>KONTUR.NEIROPRODUCER.RU/KVIZ</span><span style="text-align:right">ДИАГНОСТИКА<br>${dateStr.toUpperCase()}</span></div>
+      </article>
+      <div class="r-story">
+        <p class="r-lead">${arch.sub}</p>
+        <div class="r-item"><div class="r-label">СКРЫТАЯ ВЫГОДА</div><p>${arch.benefit}</p></div>
+        <div class="r-item"><div class="r-label">ЦЕНА</div><p>${arch.cost}</p></div>
+        <div class="r-item"><div class="r-label">ВАША СИЛА</div><p>${arch.strength}</p></div>
+        <div class="exit-box">
+          <div class="exit-label">ВЫХОД ДЛЯ ВАС</div>
+          <div class="exit-text">${arch.exit}</div>
+        </div>
       </div>
     </div>
-    <div class="exit-box">
-      <div class="exit-label">ВЫХОД ДЛЯ ВАС</div>
-      <div class="exit-text">${arch.exit}</div>
-    </div>
+    <section class="r-sec scales">
+      <h2>Как распределились ваши ответы</h2>
+      <p>В каждом из нас есть все шесть паттернов&nbsp;— в разной пропорции. Главный тот, что набрал больше всего ответов. Второй по силе тоже стоит прочитать: он часто включается, когда первый не срабатывает.</p>
+      ${scalesHTML}
+    </section>
   `;
-  document.getElementById('res-more').innerHTML = `
+
+  const planHTML = PLAN_IN_BOT ? `
+    <div class="plan-box">
+      <div class="plan-title">ПЛАН НА ЭТУ НЕДЕЛЮ · ШАГ 1</div>
+      <ol class="plan-steps"><li>${plan.steps[0]}</li></ol>
+      <p class="plan-teaser">Ещё два шага, правило и готовый промпт пришлю в&nbsp;Telegram&nbsp;— и в&nbsp;середине недели спрошу, как идёт.</p>
+    </div>` : `
     <div class="plan-box">
       <div class="plan-title">ПЛАН НА ЭТУ НЕДЕЛЮ</div>
       <ol class="plan-steps">${plan.steps.map(s=>`<li>${s}</li>`).join('')}</ol>
@@ -721,19 +767,27 @@ function showResult(){
       <div class="plan-actions">
         <button class="plan-btn main" id="copy-prompt" type="button">Скопировать промпт</button>
       </div>
-    </div>
-    <div class="scales">
-      <div class="sc-label">КАК РАСПРЕДЕЛИЛИСЬ ВАШИ ОТВЕТЫ</div>
-      ${scalesHTML}
-    </div>
+    </div>`;
+  document.getElementById('res-more').innerHTML = planHTML + `
+    <details class="r-method">
+      <summary>Как получился результат?</summary>
+      <p>Это инструмент самонаблюдения, а&nbsp;не психологический тест и&nbsp;не оценка уровня. В&nbsp;квизе 13 вопросов о&nbsp;том, как вы обычно действуете, и&nbsp;каждый вариант ответа относится к&nbsp;одному из шести паттернов. Главным становится паттерн, набравший больше всего ответов; при равенстве&nbsp;— тот, что вы выбирали ближе к&nbsp;концу. Первый вопрос, о&nbsp;частоте работы с&nbsp;ИИ, на&nbsp;результат не влияет.</p>
+      <p>Ответы никуда не отправляются и&nbsp;не сохраняются: всё считается в&nbsp;вашем браузере.</p>
+    </details>
   `;
+  if(PLAN_IN_BOT){
+    document.querySelector('#screen-result .sub-title').textContent = 'Ваш план на неделю — в Telegram';
+    document.querySelector('#screen-result .sub-text').innerHTML = 'Пришлю три шага под ваш паттерн, правило и&nbsp;готовый промпт, а&nbsp;в&nbsp;середине недели спрошу, как идёт. Следом&nbsp;— Аудитор и&nbsp;Аналитик: за&nbsp;20 минут они разберут вашу работу и&nbsp;соберут карту задач. Бесплатно.';
+    document.getElementById('cta-bot').innerHTML = 'Получить план и помощников &nbsp;→';
+    document.getElementById('sticky-cta').innerHTML = 'Получить план и помощников&nbsp;→';
+  }
   // Плавающая кнопка, пока основная кнопка бота не на экране
   const sticky=document.getElementById('sticky-cta'), mainCta=document.getElementById('cta-bot');
   if(BOT_LINK) sticky.href=BOT_LINK;
   if('IntersectionObserver' in window){
     setTimeout(()=>new IntersectionObserver(es=>es.forEach(e=>sticky.classList.toggle('show', !e.isIntersecting && e.boundingClientRect.top>0))).observe(mainCta), 700);
   }
-  document.getElementById('copy-prompt').onclick = e => { copyText(plan.prompt.replace(/\u00a0/g,' '), e.currentTarget, 'Скопировано ✓'); goal('kviz_prompt_copy'); };
+  if(!PLAN_IN_BOT) document.getElementById('copy-prompt').onclick = e => { copyText(plan.prompt.replace(/\u00a0/g,' '), e.currentTarget, 'Скопировано ✓'); goal('kviz_prompt_copy'); };
 
   showScreen('screen-result');
 
