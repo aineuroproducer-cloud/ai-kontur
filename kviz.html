@@ -104,7 +104,11 @@ html,body{min-height:100vh;background:var(--bg);color:var(--text);font-family:'I
 .exit-box{padding:22px 24px;background:var(--accent-glow);border:1px solid rgba(139,92,246,.3);border-radius:12px;margin-bottom:56px}
 .exit-label{font-family:'Unbounded',sans-serif;font-size:8px;letter-spacing:.22em;color:var(--accent-l);margin-bottom:9px}
 .exit-text{font-size:16px;font-weight:600;color:var(--text);line-height:1.55}
-.plan-box{padding:26px 24px;background:var(--card);border:1px solid var(--border);border-radius:12px;margin:-32px 0 56px}
+.plan-box{padding:26px 24px;background:var(--card);border:1px solid var(--border);border-radius:12px;margin:0 0 48px}
+.res-top{padding-bottom:8px}.res-top .exit-box{margin-bottom:0}
+.res-more{padding-top:48px;border-top:1px solid var(--border)}
+.sticky-cta{position:fixed;left:16px;right:16px;bottom:16px;z-index:50;display:none;justify-content:center;align-items:center;padding:14px 18px;background:var(--accent);color:#fff;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;border-radius:10px;text-decoration:none;box-shadow:0 10px 30px rgba(0,0,0,.45);max-width:520px;margin:0 auto}
+.sticky-cta.show{display:flex}
 .plan-title{font-family:'Unbounded',sans-serif;font-size:8px;letter-spacing:.22em;color:var(--accent-l);margin-bottom:14px}
 .plan-steps{margin:0 0 18px;padding-left:20px;color:var(--text);font-size:15px;line-height:1.6}
 .plan-steps li{margin-bottom:8px}
@@ -195,7 +199,7 @@ html,body{min-height:100vh;background:var(--bg);color:var(--text);font-family:'I
     <div class="brand">НЕЙРОПРОДЮСЕР</div>
     <div class="res-date" id="res-date"></div>
   </div>
-  <div class="res-wrap" id="res-content"></div>
+  <div class="res-wrap res-top" id="res-content"></div>
   <div class="sub-section">
     <div class="sub-title">Паттерн — это «как». Следующий шаг — «что»</div>
     <p class="sub-text">Какие из ваших задач стоит отдать ИИ, а какие оставить себе? Два ИИ-помощника — Аудитор и Аналитик — за 20 минут разберут вашу работу и соберут карту задач. Бесплатно, помощников пришлю в Telegram.</p>
@@ -205,6 +209,8 @@ html,body{min-height:100vh;background:var(--bg);color:var(--text);font-family:'I
     </div>
     <p class="share-note">Узнали себя? Сделайте скриншот результата и&nbsp;пришлите мне в&nbsp;Telegram&nbsp;— подскажу, с&nbsp;чего начать именно вам. <a href="https://t.me/svechka_v" id="cta-share" target="_blank" rel="noopener">Написать Светлане&nbsp;→</a></p>
   </div>
+  <div class="res-wrap res-more" id="res-more"></div>
+  <a class="sticky-cta" id="sticky-cta" href="https://t.me/neiroproducer_bot?start=c1785849197311-ds" target="_blank" rel="noopener">Получить Аудитора и Аналитика&nbsp;→</a>
 </div>
 
 <!-- ════════════ ANALYSIS PANEL ════════════ -->
@@ -661,26 +667,6 @@ function fallbackCopy(text){
   const ta=document.createElement('textarea'); ta.value=text; ta.style.position='fixed'; ta.style.opacity='0';
   document.body.appendChild(ta); ta.select(); let r=false; try{ r=document.execCommand('copy'); }catch(e){} ta.remove(); return r;
 }
-function savePlan(name, plan, btn){
-  const text = [
-    'Мой результат в квизе «Кто вы в работе с ИИ»: ' + name + '.',
-    '',
-    'План на эту неделю:',
-    ...plan.steps.map((s,i)=>(i+1)+'. '+s),
-    '',
-    'Правило: ' + plan.rule,
-    '',
-    'Промпт, чтобы начать:',
-    plan.prompt,
-    '',
-    'Пройти квиз: https://kontur.neiroproducer.ru/kviz'
-  ].join('\n').replace(/\u00a0/g,' ');
-  if(navigator.share && window.matchMedia('(pointer:coarse)').matches){
-    navigator.share({ title:'Мой план на неделю — ' + name, text }).catch(()=>{});
-  } else {
-    copyText(text, btn, 'План скопирован ✓');
-  }
-}
 function showResult(){
   // determine winner
   // Побеждает паттерн с наибольшим числом ответов; при ничьей — тот, что выбран позже
@@ -720,14 +706,12 @@ function showResult(){
         <div class="pc-text">${arch.strength}</div>
       </div>
     </div>
-    <div class="scales">
-      <div class="sc-label">КАК РАСПРЕДЕЛИЛИСЬ ВАШИ ОТВЕТЫ</div>
-      ${scalesHTML}
-    </div>
     <div class="exit-box">
       <div class="exit-label">ВЫХОД ДЛЯ ВАС</div>
       <div class="exit-text">${arch.exit}</div>
     </div>
+  `;
+  document.getElementById('res-more').innerHTML = `
     <div class="plan-box">
       <div class="plan-title">ПЛАН НА ЭТУ НЕДЕЛЮ</div>
       <ol class="plan-steps">${plan.steps.map(s=>`<li>${s}</li>`).join('')}</ol>
@@ -735,13 +719,21 @@ function showResult(){
       <div class="plan-title">ПРОМПТ, ЧТОБЫ НАЧАТЬ</div>
       <div class="plan-prompt">${plan.prompt}</div>
       <div class="plan-actions">
-        <button class="plan-btn" id="copy-prompt" type="button">Скопировать промпт</button>
-        <button class="plan-btn main" id="save-plan" type="button">Сохранить план</button>
+        <button class="plan-btn main" id="copy-prompt" type="button">Скопировать промпт</button>
       </div>
     </div>
+    <div class="scales">
+      <div class="sc-label">КАК РАСПРЕДЕЛИЛИСЬ ВАШИ ОТВЕТЫ</div>
+      ${scalesHTML}
+    </div>
   `;
+  // Плавающая кнопка, пока основная кнопка бота не на экране
+  const sticky=document.getElementById('sticky-cta'), mainCta=document.getElementById('cta-bot');
+  if(BOT_LINK) sticky.href=BOT_LINK;
+  if('IntersectionObserver' in window){
+    setTimeout(()=>new IntersectionObserver(es=>es.forEach(e=>sticky.classList.toggle('show', !e.isIntersecting && e.boundingClientRect.top>0))).observe(mainCta), 700);
+  }
   document.getElementById('copy-prompt').onclick = e => { copyText(plan.prompt.replace(/\u00a0/g,' '), e.currentTarget, 'Скопировано ✓'); goal('kviz_prompt_copy'); };
-  document.getElementById('save-plan').onclick = e => { savePlan(arch.name, plan, e.currentTarget); goal('kviz_plan_save'); };
 
   showScreen('screen-result');
 
@@ -760,6 +752,7 @@ function showResult(){
 document.addEventListener('DOMContentLoaded',()=>{
   if(BOT_LINK) document.getElementById('cta-bot').href = BOT_LINK;
   document.getElementById('cta-bot').addEventListener('click', function(){ if(typeof ym==='function') ym(113178943,'reachGoal','kviz_bot'); });
+  document.getElementById('sticky-cta').addEventListener('click', function(){ if(typeof ym==='function') ym(113178943,'reachGoal','kviz_bot'); });
   document.getElementById('cta-share').addEventListener('click', function(){ if(typeof ym==='function') ym(113178943,'reachGoal','kviz_share'); });
   const start = document.getElementById('screen-start');
   start.style.display='flex';
